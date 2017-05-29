@@ -1,0 +1,38 @@
+AWSConfigurationTemplateVersion: 1.1.0.0
+Platform:
+  PlatformArn: arn:aws:elasticbeanstalk:us-west-1::platform/Docker running on 64bit Amazon Linux/2.6.0
+EnvironmentTier:
+  Type: Standard
+  Name: WebServer
+OptionSettings:
+  aws:elasticbeanstalk:command:
+    DeploymentPolicy: Immutable
+  aws:elasticbeanstalk:environment:
+    EnvironmentType: LoadBalanced
+    LoadBalancerType: application
+    ServiceRole: aws-elasticbeanstalk-service-role
+  aws:elasticbeanstalk:environment:process:default:
+    HealthCheckPath: /_status
+  aws:elasticbeanstalk:healthreporting:system:
+    SystemType: enhanced
+  aws:ec2:vpc:
+    Subnets: subnet-8edc08d6,subnet-4904822d
+    VPCId: vpc-84e819e0
+    ELBSubnets: subnet-8fdc08d7,subnet-4804822c
+    ELBScheme: public
+    AssociatePublicIpAddress: true
+  aws:autoscaling:updatepolicy:rollingupdate:
+    RollingUpdateType: Immutable
+    RollingUpdateEnabled: true
+  aws:elbv2:listener:default:
+    ListenerEnabled: false
+  aws:elbv2:listener:443:
+    ListenerEnabled: true
+    SSLPolicy: ELBSecurityPolicy-TLS-1-2-2017-01
+    SSLCertificateArns: arn:aws:acm:us-west-1:964867326460:certificate/c1ddeae5-a20d-403d-b82a-1881665f183e
+    DefaultProcess: default
+    Protocol: HTTPS
+  aws:autoscaling:launchconfiguration:
+    SecurityGroups: sg-b3d625d4
+    IamInstanceProfile: aws-elasticbeanstalk-ec2-role
+    EC2KeyName: ops
