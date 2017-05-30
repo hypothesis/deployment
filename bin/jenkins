@@ -1,0 +1,33 @@
+#!/bin/sh
+
+# The name of the Elastic Beanstalk application to manage
+: ${APP:=}
+# If deploying an application version, the docker tag of the version to create
+# and release. If not specified, we run an environment settings sync.
+: ${APP_DOCKER_VERSION:=}
+# The environment on which to operate (typically "qa" or "prod"). Note that the
+# name of the environment in Elastic Beanstalk will be prefixed with the name of
+# the application.
+: ${ENV:=}
+
+set -eu
+
+abort () {
+    echo "Error:" "$@" >&2
+    echo "Aborting!" >&2
+    exit 1
+}
+
+if [ -z "$APP" ]; then
+    abort "cannot proceed unless \$APP is specified"
+fi
+
+if [ -z "$ENV" ]; then
+    abort "cannot proceed unless \$ENV is specified"
+fi
+
+if [ -n "$APP_DOCKER_VERSION" ]; then
+    echo "would deploy $APP to $ENV using docker tag $APP_DOCKER_VERSION"
+else
+    echo "would run environment sync for $ENV environment for $APP"
+fi
