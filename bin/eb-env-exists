@@ -19,7 +19,7 @@ ENV=$2
 
 count=$(aws elasticbeanstalk describe-environments \
         --application-name "$APP" \
-        --environment-name "${APP}-${ENV}" \
+        --environment-names "${APP}-${ENV}" \
         --query 'length(Environments)' \
         --output text)
 test "$count" -gt 0
