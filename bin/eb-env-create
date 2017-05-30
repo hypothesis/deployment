@@ -22,7 +22,7 @@ usage () {
 
 abort () {
     echo "Error:" "$@" >&2
-    echo "Aborting!"
+    echo "Aborting!" >&2
     exit 1
 }
 
