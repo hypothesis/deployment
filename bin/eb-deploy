@@ -1,0 +1,96 @@
+#!/bin/sh
+
+usage () {
+    echo "Usage: $(basename "$0") <APP> <ENV> <APP_DOCKER_TAG>"
+    echo
+    echo "Deploy an application at a specified Docker image tag to the named"
+    echo "environment."
+    echo
+    echo "  APP              the name of the application, e.g. 'bouncer'"
+    echo "  ENV              the environment: typically 'qa' or 'prod'"
+    echo "  APP_DOCKER_TAG   the tag of the Docker image to release"
+}
+
+abort () {
+    echo "Error:" "$@" >&2
+    echo "Aborting!" >&2
+    exit 1
+}
+
+status () {
+    echo "--->" "$@" >&2
+}
+
+if [ "$#" -ne 3 ]; then
+    usage >&2
+    exit 1
+fi
+
+set -eu
+
+PATH="$(dirname "$0"):${PATH}"
+
+APP=$1
+ENV=$2
+APP_DOCKER_TAG=$3
+
+if [ ! -f "${APP}/Dockerrun.aws.json" ]; then
+    abort "there must be a Dockerrun.aws.json in the app directory (${APP}/)"
+fi
+
+# Deploying the application to Elastic Beanstalk has several steps:
+#
+# 1. Upload a tweaked version of the application's Dockerrun.aws.json template
+#    to the ElasticBeanstalk S3 bucket.
+# 2. Create an application version using the uploaded template. This creates the
+#    application automatically if it needs to.
+# 3. Create or update the named environment with the uploaded version of the
+#    application.
+
+
+status "preparing application source bundle"
+
+# Use JQ to append ":<APP_DOCKER_TAG>" to the image name in the template JSON
+# file.
+SRCBUNDLE=$(mktemp)
+jq ".Image.Name += \":${APP_DOCKER_TAG}\"" <"${APP}/Dockerrun.aws.json" >"$SRCBUNDLE"
+
+# And clean up when we're done...
+trap 'rm "$SRCBUNDLE"' EXIT
+
+
+status "fetching storage location"
+
+EB_BUCKET=$(aws elasticbeanstalk create-storage-location --query S3Bucket --output text)
+
+
+status "uploading application version to S3"
+
+VERSION_LABEL="${APP}-$(date -u +"%Y%m%dT%H%M%SZ")-${APP_DOCKER_TAG}"
+aws s3 cp "$SRCBUNDLE" "s3://${EB_BUCKET}/${APP}/${VERSION_LABEL}.json"
+
+
+status "creating application version in EB"
+
+aws elasticbeanstalk create-application-version \
+    --application-name "$APP" \
+    --version-label "$VERSION_LABEL" \
+    --source-bundle "S3Bucket=${EB_BUCKET},S3Key=${APP}/${VERSION_LABEL}.json" \
+    --process \
+    --auto-create-application
+
+
+status "deploying application"
+
+# If the environment exists we can simply update it with the new version label
+# and the deployment will proceed on its own.
+#
+# If the environment does not yet exist, create it using eb-env-create.
+if eb-env-exists "$APP" "$ENV"; then
+    aws elasticbeanstalk update-environment \
+        --application-name "$APP" \
+        --environment-name "${APP}-${ENV}" \
+        --version-label "$VERSION_LABEL"
+else
+    eb-env-create "$APP" "$ENV" "$VERSION_LABEL"
+fi

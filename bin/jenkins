@@ -10,6 +10,8 @@
 # the application.
 : ${ENV:=}
 
+PATH="$(dirname "$0"):${PATH}"
+
 set -eu
 
 abort () {
@@ -27,7 +29,7 @@ if [ -z "$ENV" ]; then
 fi
 
 if [ -n "$APP_DOCKER_VERSION" ]; then
-    echo "would deploy $APP to $ENV using docker tag $APP_DOCKER_VERSION"
+    eb-deploy "$APP" "$ENV" "$APP_DOCKER_VERSION"
 else
-    echo "would run environment sync for $ENV environment for $APP"
+    echo "NOT YET IMPLEMENTED: would run environment sync for $ENV environment for $APP"
 fi
