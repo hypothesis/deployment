@@ -30,9 +30,12 @@ pipeline {
     }
 
     stages {
-        stage('run') {
+        stage('main') {
             steps {
-                sh 'echo hello world'
+                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding',
+                                  credentialsId: 'aws-elasticbeanstalk-jenkins']]) {
+                    sh 'bin/jenkins'
+                }
             }
         }
     }
