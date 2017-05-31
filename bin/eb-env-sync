@@ -60,7 +60,7 @@ trap 'rm "$OPTION_SETTINGS_FILE"' EXIT
 
 status "updating environment"
 
-echo aws elasticbeanstalk update-environment \
+aws elasticbeanstalk update-environment \
     --application-name "$APP" \
     --environment-name "${APP}-${ENV}" \
     --option-settings file://"$OPTION_SETTINGS_FILE"
