@@ -1,0 +1,99 @@
+#!/usr/bin/env python
+
+"""
+Wait for an Elastic Beanstalk environment to return to the "Ready" state.
+
+This script periodically polls the Elastic Beanstalk API to determine whether
+an environment has returned to the "Ready" state. While doing so, it streams
+diagnostic events to the console.
+"""
+
+import argparse
+import datetime
+import sys
+import time
+
+import boto3
+
+parser = argparse.ArgumentParser()
+parser.add_argument('app')
+parser.add_argument('env')
+
+
+def main():
+    args = parser.parse_args()
+    loop(args)
+
+
+def loop(args):
+    client = boto3.client('elasticbeanstalk')
+    app_name = args.app
+    env_name = '{}-{}'.format(args.app, args.env)
+    last_event_time = datetime.datetime.utcnow() - datetime.timedelta(minutes=1)
+
+    while True:
+        # Fetch and print all recent events
+        events = fetch_events(client, app_name, env_name, last_event_time=last_event_time)
+        for event in reversed(events):
+            print_event(event)
+            last_event_time = event['EventDate']
+
+        # Check if the environment is ready. If so, fall out of the loop.
+        ready = check_ready(client, app_name, env_name)
+        if ready:
+            print('Environment has returned to "ready" state.')
+            break
+
+        time.sleep(5)
+
+
+def check_ready(client, app_name, env_name):
+    """Check if the specified environment is in the "Ready" state."""
+    result = client.describe_environments(ApplicationName=app_name,
+                                          EnvironmentNames=[env_name])
+    envs = result['Environments']
+
+    if len(envs) == 0:
+        abort('no matching environment found')
+
+    if len(envs) > 1:
+        abort('multiple environments found, but this tool only works '
+              'if environment names are unique within an application')
+
+    return envs[0]['Status'] == 'Ready'
+
+
+def fetch_events(client, app_name, env_name, last_event_time=None):
+    """Fetch a list of events for the specified environment."""
+    kwargs = {'ApplicationName': app_name,
+              'EnvironmentName': env_name}
+
+    if last_event_time is not None:
+        # Add 1ms to ensure we don't double-report events
+        kwargs['StartTime'] = last_event_time + datetime.timedelta(milliseconds=1)
+
+    events = []
+
+    while True:
+        result = client.describe_events(**kwargs)
+        events.extend(result['Events'])
+        if 'NextToken' in result:
+            kwargs['NextToken'] = result['NextToken']
+            continue
+        break
+
+    return events
+
+
+def print_event(event):
+    """Print an event dictionary to the console."""
+    print('{EventDate:%Y-%m-%d %H:%M:%S %Z}  {Severity:<6} {Message}'.format(**event))
+
+
+def abort(message):
+    print('Error: {}'.format(message), file=sys.stderr)
+    sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()
