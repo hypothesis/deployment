@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python -u
 
 """
 Wait for an Elastic Beanstalk environment to return to the "Ready" state.
