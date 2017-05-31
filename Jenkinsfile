@@ -25,6 +25,10 @@ pipeline {
                description: 'Choose the application to deploy.')
     }
 
+    environment {
+        AWS_DEFAULT_REGION = 'us-west-1'
+    }
+
     stages {
         stage('run') {
             steps {
