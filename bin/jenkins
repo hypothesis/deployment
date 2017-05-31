@@ -30,7 +30,8 @@ fi
 
 if [ -n "$APP_DOCKER_VERSION" ]; then
     eb-deploy "$APP" "$ENV" "$APP_DOCKER_VERSION"
-    eb-env-wait "$APP" "$ENV"
 else
-    echo "NOT YET IMPLEMENTED: would run environment sync for $ENV environment for $APP"
+    eb-env-sync "$APP" "$ENV"
 fi
+
+eb-env-wait "$APP" "$ENV"

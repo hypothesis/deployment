@@ -1,0 +1,66 @@
+#!/bin/sh
+
+usage () {
+    echo "Usage: $(basename "$0") <APP> <ENV>"
+    echo
+    echo "Synchronize an Elastic Beanstalk environment with the settings in the"
+    echo "local environment configuration file."
+    echo
+    echo "  APP            the name of the application, e.g. 'bouncer'"
+    echo "  ENV            the environment: typically 'qa' or 'prod'"
+    echo
+    echo "The environment configuration will be assumed to live in an "
+    echo "environment manifest at <APP>/env-<ENV>.yml relative to the working "
+    echo "directory."
+}
+
+abort () {
+    echo "Error:" "$@" >&2
+    echo "Aborting!" >&2
+    exit 1
+}
+
+status () {
+    echo "--->" "$@" >&2
+}
+
+if [ "$#" -ne 2 ]; then
+    usage >&2
+    exit 1
+fi
+
+set -eu
+
+PATH="$(dirname "$0"):${PATH}"
+
+APP=$1
+ENV=$2
+MANIFEST="${APP}/env-${ENV}.yml"
+
+if [ ! -f "$MANIFEST" ]; then
+    abort "expected to find environment manifest file at '${MANIFEST}'"
+fi
+
+if ! eb-env-exists "$APP" "$ENV"; then
+    abort "$ENV environment doesn't exist for $APP"
+fi
+
+# To update the environment, we must manipulate the settings in the environment
+# manifest into a format which can be passed to the `--option-settings`
+# parameter to `aws elasticbeanstalk update-environment`.
+
+status "preparing option settings file"
+
+OPTION_SETTINGS_FILE=$(mktemp)
+eb-manifest-settings <"$MANIFEST" >"$OPTION_SETTINGS_FILE"
+
+# And clean up when we're done...
+trap 'rm "$OPTION_SETTINGS_FILE"' EXIT
+
+
+status "updating environment"
+
+echo aws elasticbeanstalk update-environment \
+    --application-name "$APP" \
+    --environment-name "${APP}-${ENV}" \
+    --option-settings file://"$OPTION_SETTINGS_FILE"
