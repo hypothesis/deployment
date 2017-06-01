@@ -33,6 +33,6 @@ OptionSettings:
     DefaultProcess: default
     Protocol: HTTPS
   aws:autoscaling:launchconfiguration:
-    SecurityGroups: sg-b3d625d4
+    SecurityGroups: sg-fdf9c19a
     IamInstanceProfile: aws-elasticbeanstalk-ec2-role
     EC2KeyName: ops
