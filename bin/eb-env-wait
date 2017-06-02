@@ -6,6 +6,9 @@ Wait for an Elastic Beanstalk environment to return to the "Ready" state.
 This script periodically polls the Elastic Beanstalk API to determine whether
 an environment has returned to the "Ready" state. While doing so, it streams
 diagnostic events to the console.
+
+If there are any events with a log level of ERROR this script will exit with
+a non-zero status code.
 """
 
 import argparse
@@ -30,18 +33,24 @@ def loop(args):
     app_name = args.app
     env_name = '{}-{}'.format(args.app, args.env)
     last_event_time = datetime.datetime.utcnow() - datetime.timedelta(minutes=1)
+    errors = []
 
     while True:
         # Fetch and print all recent events
         events = fetch_events(client, app_name, env_name, last_event_time=last_event_time)
         for event in reversed(events):
             print_event(event)
+            collect_errors(errors, event)
             last_event_time = event['EventDate']
 
         # Check if the environment is ready. If so, fall out of the loop.
         ready = check_ready(client, app_name, env_name)
         if ready:
             print('Environment has returned to "ready" state.')
+
+            if errors:
+                abort('Encountered errors while waiting for environment to update', errors)
+
             break
 
         time.sleep(5)
@@ -85,14 +94,29 @@ def fetch_events(client, app_name, env_name, last_event_time=None):
     return events
 
 
-def print_event(event):
+def print_event(event, stderr=False):
     """Print an event dictionary to the console."""
-    print('{EventDate:%Y-%m-%d %H:%M:%S %Z}  {Severity:<6} {Message}'.format(**event))
+    output = sys.stdout
+    if stderr:
+        output = sys.stderr
+
+    message = '{EventDate:%Y-%m-%d %H:%M:%S %Z}  {Severity:<6} {Message}'.format(**event)
+    print(message, file=output)
     sys.stdout.flush()
 
 
-def abort(message):
+def collect_errors(errors, event):
+    """Store error events in provided list."""
+    if event['Severity'] == 'ERROR':
+        errors.append(event)
+
+
+def abort(message, error_events=None):
     print('Error: {}'.format(message), file=sys.stderr)
+
+    if error_events:
+        for event in error_events:
+            print_event(event, stderr=True)
     sys.exit(1)
 
 
