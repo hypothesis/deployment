@@ -2,8 +2,14 @@
 
 # The name of the Elastic Beanstalk application to manage
 : ${APP:=}
+# The type of the deployment.
+# * `promote` fetches the latest successful QA deployment and
+#   promotes it to prod.
+# * `exact-version` deploys a specific version to the environmen.
+# * `sync-env` synchronizes the Elastic Beanstalk environment.
+: ${TYPE:=}
 # If deploying an application version, the docker tag of the version to create
-# and release. If not specified, we run an environment settings sync.
+# and release.
 : ${APP_DOCKER_VERSION:=}
 # The environment on which to operate (typically "qa" or "prod"). Note that the
 # name of the environment in Elastic Beanstalk will be prefixed with the name of
@@ -28,10 +34,24 @@ if [ -z "$ENV" ]; then
     abort "cannot proceed unless \$ENV is specified"
 fi
 
-if [ -n "$APP_DOCKER_VERSION" ]; then
-    eb-deploy "$APP" "$ENV" "$APP_DOCKER_VERSION"
+if [ "$TYPE" = "exact-version" ]; then
+  if [ -z "$APP_DOCKER_VERSION" ]; then
+    abort "cannot proceed with exact-version deploy unless \$APP_DOCKER_VERSION is specified"
+  fi
+
+  eb-deploy "$APP" "$ENV" "$APP_DOCKER_VERSION"
+elif [ "$TYPE" = "promote" ]; then
+  if [ "$ENV" != "prod" ]; then
+    abort "can only promote a deployment to production"
+  fi
+
+  docker_tag=$(eb-env-current-version "$APP" qa)
+  eb-deploy "$APP" "$ENV" "$docker_tag"
+
+elif [ "$TYPE" = "sync-env" ]; then
+  eb-env-sync "$APP" "$ENV"
 else
-    eb-env-sync "$APP" "$ENV"
+  abort "Don't know how to handle deployment type \"$TYPE\""
 fi
 
 eb-env-wait "$APP" "$ENV"
