@@ -37,3 +37,6 @@ OptionSettings:
     IamInstanceProfile: aws-elasticbeanstalk-ec2-role
     InstanceType: t2.micro
     EC2KeyName: ops
+  aws:autoscaling:asg:
+    MaxSize: '4'
+    MinSize: '2'
