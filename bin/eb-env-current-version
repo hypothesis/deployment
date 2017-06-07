@@ -1,0 +1,64 @@
+#!/usr/bin/env python
+
+"""
+Return the currently deployed docker tag in the given app and environment.
+"""
+
+import argparse
+import re
+import sys
+
+import boto3
+
+parser = argparse.ArgumentParser()
+parser.add_argument('app')
+parser.add_argument('env')
+
+
+def main():
+    args = parser.parse_args()
+
+    client = boto3.client('elasticbeanstalk')
+
+    app_version = fetch_application_version(client, args)
+    docker_tag = parse_docker_tag(app_version, args)
+    print(docker_tag)
+
+
+def fetch_application_version(client, args):
+    """Fetch current application version for specified environment."""
+    env_name = '{}-{}'.format(args.app, args.env)
+    result = client.describe_environments(ApplicationName=args.app,
+                                          EnvironmentNames=[env_name])
+    envs = result['Environments']
+
+    if len(envs) == 0:
+        abort('no matching environment found')
+
+    if len(envs) > 1:
+        abort('multiple environments found, but this tool only works '
+              'if environment names are unique within an application')
+
+    return envs[0]['VersionLabel']
+
+
+def parse_docker_tag(app_version, args):
+    # We want to parse out the docker tag that we put into the application
+    # version. An example application version is: bouncer-20170602T132529Z-20170602-g35940db
+    # The last part of this is the docker tag that is deployed: 20170602-g35940db
+    exp = '^%s-[0-9]{8}T[0-9]{6}Z-(.+)$' % re.escape(args.app)
+    result = re.search(exp, app_version)
+    if result is None:
+        abort('Found an incorrect application version "%s"' % app_version)
+
+    docker_tag = result.group(1)
+    return docker_tag
+
+
+def abort(message):
+    print('Error: {}'.format(message), file=sys.stderr)
+    sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()
