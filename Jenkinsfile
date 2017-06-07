@@ -20,8 +20,7 @@ pipeline {
                description: 'Choose the deployment type. ' +
                             '`promote` promotes the last successful QA deployment to prod. ' +
                             '`exact-version` pushes a specific docker tag. ' +
-                            '`sync-env` synchronizes the environment definition.',
-                defaultValue: 'promote')
+                            '`sync-env` synchronizes the environment definition.')
         string(name: 'APP_DOCKER_VERSION',
                description: 'The tag of the application docker image to ' +
                             'deploy. This is required if the selected ' +
