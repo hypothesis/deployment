@@ -54,6 +54,11 @@ pipeline {
     stages {
         stage('setup') {
             steps {
+                script {
+                    def label = "#${currentBuild.number} ${params.APP} " +
+                                "${params.ENV} ${params.TYPE}"
+                    currentBuild.displayName = label
+                }
                 postSlack('start', params)
             }
         }
