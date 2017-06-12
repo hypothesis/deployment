@@ -1,0 +1,37 @@
+AWSConfigurationTemplateVersion: 1.1.0.0
+Platform:
+  PlatformArn: arn:aws:elasticbeanstalk:us-west-1::platform/Docker running on 64bit Amazon Linux/2.6.0
+EnvironmentTier:
+  Type: Standard
+  Name: WebServer
+OptionSettings:
+  aws:elasticbeanstalk:command:
+    DeploymentPolicy: Immutable
+  aws:elasticbeanstalk:environment:
+    EnvironmentType: LoadBalanced
+    LoadBalancerType: application
+    ServiceRole: aws-elasticbeanstalk-service-role
+  aws:elasticbeanstalk:environment:process:default:
+    HealthCheckPath: /_status
+  aws:elasticbeanstalk:healthreporting:system:
+    SystemType: enhanced
+  aws:ec2:vpc:
+    Subnets: subnet-66b8413f,subnet-2fdcbe4a
+    VPCId: vpc-bc4d91d9
+    ELBSubnets: subnet-66b8413f,subnet-2fdcbe4a
+    ELBScheme: internal
+    AssociatePublicIpAddress: false
+  aws:autoscaling:updatepolicy:rollingupdate:
+    RollingUpdateType: Immutable
+    RollingUpdateEnabled: true
+  aws:elbv2:listener:default:
+    ListenerEnabled: True
+    DefaultProcess: default
+  aws:autoscaling:launchconfiguration:
+    SecurityGroups: sg-fdf9c19a
+    IamInstanceProfile: aws-elasticbeanstalk-ec2-role
+    InstanceType: t2.nano
+    EC2KeyName: ops
+  aws:autoscaling:asg:
+    MaxSize: '1'
+    MinSize: '1'
