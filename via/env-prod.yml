@@ -39,4 +39,14 @@ OptionSettings:
     EC2KeyName: ops
   aws:autoscaling:asg:
     MaxSize: '4'
-    MinSize: '2'
+    MinSize: '1'
+  AWSEBCloudwatchAlarmHigh.aws:autoscaling:trigger:
+    UpperThreshold: '50000000' # 50MB
+  AWSEBCloudwatchAlarmLow.aws:autoscaling:trigger:
+    BreachDuration: '5'
+    EvaluationPeriods: '1'
+    LowerThreshold: '20000000' # 20MB
+    MeasureName: NetworkOut
+    Period: '5'
+    Statistic: Average
+    Unit: Bytes
