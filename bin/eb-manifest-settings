@@ -1,27 +1,37 @@
-#!/bin/sh
+#!/usr/bin/env python
 
-set -eu
+"""
+Extract option settings from an Elastic Beanstalk environment
+manifest provided on STDIN and print them in the JSON format expected
+by the AWS CLI's `--option-settings` parameter.
+"""
 
-usage () {
-    echo "Usage: $(basename "$0") <env.yml"
-    echo
-    echo "Extract option settings from an Elastic Beanstalk environment "
-    echo "manifest provided on STDIN and print them in the JSON format expected "
-    echo "by the AWS CLI's \`--option-settings' parameter."
-}
+import json
+import sys
+import yaml
 
-if [ -t 0 ]; then
-    usage >&2
-    exit 1
-fi
 
-PATH="$(dirname "$0"):${PATH}"
+def main():
+    manifest = yaml.load(sys.stdin)
+    settings = convert(manifest.get('OptionSettings', {}))
+    print(json.dumps(settings, indent=2))
 
-yaml2json | jq -Mr '
-    [.OptionSettings
-     | to_entries
-     | .[]
-     | .key as $namespace
-     | .value
-     | to_entries[]
-     | {"Namespace": $namespace, "OptionName": .key, "Value": .value|tostring}]'
+
+def convert(option_settings):
+    settings = []
+    for namespace, options in option_settings.items():
+        for key, value in options.items():
+            setting = {'Namespace': namespace,
+                       'OptionName': key,
+                       'Value': convert_value(value)}
+            settings.append(setting)
+    return settings
+
+
+def convert_value(value):
+    if isinstance(value, bool):
+        return json.dumps(value)
+    return value
+
+if __name__ == "__main__":
+    main()
