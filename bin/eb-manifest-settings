@@ -20,18 +20,42 @@ def main():
 def convert(option_settings):
     settings = []
     for namespace, options in option_settings.items():
+        namespace, resource = split_namespace(namespace)
+
         for key, value in options.items():
             setting = {'Namespace': namespace,
                        'OptionName': key,
                        'Value': convert_value(value)}
+            if resource:
+                setting['ResourceName'] = resource
+
             settings.append(setting)
     return settings
 
 
 def convert_value(value):
+    """ Convert value to correct strings supported by EB.  """
     if isinstance(value, bool):
         return json.dumps(value)
     return value
+
+def split_namespace(value):
+    """
+    Split namespace into a resource name and a namespace.
+
+    EB allows namespaces to be prefixed with a resource name,
+    for example: `AWSEBCloudwatchAlarmLow.aws:autoscaling:trigger`.
+    The resulting JSON needs to list the resource name (`AWSEBCloudwatchAlarmLow`)
+    and the namespace (`aws:autoscaling:trigger`) separately.
+    """
+    results = value.split('.')
+
+    if len(results) == 1:
+        return value, None
+    elif len(results) == 2:
+        return results[1], results[0]
+    else:
+        raise ValueError('"%s" does not seem to be a valid namespace' % value)
 
 if __name__ == "__main__":
     main()
