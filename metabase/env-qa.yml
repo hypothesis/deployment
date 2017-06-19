@@ -12,7 +12,7 @@ OptionSettings:
     LoadBalancerType: application
     ServiceRole: aws-elasticbeanstalk-service-role
   aws:elasticbeanstalk:environment:process:default:
-    HealthCheckPath: /
+    HealthCheckPath: /api/health
   aws:elasticbeanstalk:healthreporting:system:
     SystemType: enhanced
   aws:ec2:vpc:
