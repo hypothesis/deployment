@@ -39,14 +39,16 @@ if [ "$TYPE" = "exact-version" ]; then
     abort "cannot proceed with exact-version deploy unless \$APP_DOCKER_VERSION is specified"
   fi
 
-  eb-deploy "$APP" "$ENV" "$APP_DOCKER_VERSION"
+  version_label=$(eb-release "$APP" "$APP_DOCKER_VERSION")
+  eb-deploy "$APP" "$ENV" "$version_label"
+
 elif [ "$TYPE" = "promote" ]; then
   if [ "$ENV" != "prod" ]; then
     abort "can only promote a deployment to production"
   fi
 
-  docker_tag=$(eb-env-current-version "$APP" qa)
-  eb-deploy "$APP" "$ENV" "$docker_tag"
+  version_label=$(eb-env-version "$APP" qa)
+  eb-deploy "$APP" "$ENV" "$version_label"
 
 elif [ "$TYPE" = "sync-env" ]; then
   eb-env-sync "$APP" "$ENV"
