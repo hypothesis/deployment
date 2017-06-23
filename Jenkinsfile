@@ -3,21 +3,21 @@
 // The list of applications which can be deployed.
 def deployApplications = ['bouncer', 'h', 'h-periodic', 'metabase', 'via'].join('\n')
 // The list of deployment types.
-def deployTypes = ['promote', 'exact-version', 'sync-env'].join('\n')
+def deployTypes = ['deploy', 'redeploy', 'sync-env'].join('\n')
 // The list of environments. It is assumed that each application has one of each
 // of these environments.
 def deployEnvironments = ['qa', 'prod'].join('\n')
 
 def postSlack(state, params) {
     def messages = [
-        'start': ['promote': "Starting to promote ${params.APP} to ${params.ENV}",
-                  'exact-version': "Starting to deploy ${params.APP} ${params.APP_DOCKER_VERSION} to ${params.ENV}",
+        'start': ['deploy': "Starting to deploy ${params.APP} ${params.APP_DOCKER_VERSION} to ${params.ENV}",
+                  'redeploy': "Starting re-deployment of ${params.APP} in ${params.ENV}",
                   'sync-env': "Starting to synchronize the ${params.APP}-${params.ENV} environment"],
-        'success': ['promote': "Successfully promoted ${params.APP} to ${params.ENV}",
-                  'exact-version': "Successfully deployed ${params.APP} ${params.APP_DOCKER_VERSION} to ${params.ENV}",
-                  'sync-env': "Successfully synchronized the ${params.APP}-${params.ENV} environment"],
-        'error': ['promote': "Failed to promote ${params.APP} to ${params.ENV}",
-                  'exact-version': "Failed to deploy ${params.APP} ${params.APP_DOCKER_VERSION} to ${params.ENV}",
+        'success': ['deploy': "Successfully deployed ${params.APP} ${params.APP_DOCKER_VERSION} to ${params.ENV}",
+                    'redeploy': "Successfully re-deployed ${params.APP} in ${params.ENV}",
+                    'sync-env': "Successfully synchronized the ${params.APP}-${params.ENV} environment"],
+        'error': ['deploy': "Failed to deploy ${params.APP} ${params.APP_DOCKER_VERSION} to ${params.ENV}",
+                  'redeploy': "Failed to re-deploy ${params.APP} in ${params.ENV}",
                   'sync-env': "Failed to synchronize the ${params.APP}-${params.ENV} environment"]
     ]
     def colors = ['start': 'good', 'success': 'good', 'error': 'danger']
@@ -34,13 +34,13 @@ pipeline {
         choice(name: 'TYPE',
                choices: deployTypes,
                description: 'Choose the deployment type. ' +
-                            '`promote` promotes the last successful QA deployment to prod. ' +
-                            '`exact-version` pushes a specific docker tag. ' +
+                            '`deploy` releases and deploys a specific application version. ' +
+                            '`redeploy` triggers a redeployment of the currently-deployed version. ' +
                             '`sync-env` synchronizes the environment definition.')
         string(name: 'APP_DOCKER_VERSION',
                description: 'The tag of the application docker image to ' +
                             'deploy. This is required if the selected ' +
-                            'deployment type is `exact-version`.',
+                            'deployment type is `deploy`.',
                defaultValue: '')
         choice(name: 'ENV',
                choices: deployEnvironments,

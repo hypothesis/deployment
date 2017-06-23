@@ -3,9 +3,8 @@
 # The name of the Elastic Beanstalk application to manage
 : ${APP:=}
 # The type of the deployment.
-# * `promote` fetches the latest successful QA deployment and
-#   promotes it to prod.
-# * `exact-version` deploys a specific version to the environmen.
+# * `deploy` releases and deploys a specific app version to the environment.
+# * `redeploy` triggers a redeployment of the currently-deployed version.
 # * `sync-env` synchronizes the Elastic Beanstalk environment.
 : ${TYPE:=}
 # If deploying an application version, the docker tag of the version to create
@@ -34,20 +33,20 @@ if [ -z "$ENV" ]; then
     abort "cannot proceed unless \$ENV is specified"
 fi
 
-if [ "$TYPE" = "exact-version" ]; then
+if [ "$TYPE" = "deploy" ]; then
   if [ -z "$APP_DOCKER_VERSION" ]; then
-    abort "cannot proceed with exact-version deploy unless \$APP_DOCKER_VERSION is specified"
+    abort "cannot proceed with deploy unless \$APP_DOCKER_VERSION is specified"
   fi
 
   version_label=$(eb-release "$APP" "$APP_DOCKER_VERSION")
   eb-deploy "$APP" "$ENV" "$version_label"
 
-elif [ "$TYPE" = "promote" ]; then
-  if [ "$ENV" != "prod" ]; then
-    abort "can only promote a deployment to production"
+elif [ "$TYPE" = "redeploy" ]; then
+  if [ -n "$APP_DOCKER_VERSION" ]; then
+    abort "do not specify \$APP_DOCKER_VERSION for a redeploy"
   fi
 
-  version_label=$(eb-env-version "$APP" qa)
+  version_label=$(eb-env-version "$APP" "$ENV")
   eb-deploy "$APP" "$ENV" "$version_label"
 
 elif [ "$TYPE" = "sync-env" ]; then
