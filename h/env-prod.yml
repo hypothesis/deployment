@@ -39,4 +39,14 @@ OptionSettings:
     EC2KeyName: ops
   aws:autoscaling:asg:
     MaxSize: '6'
-    MinSize: '2'
+    MinSize: '1'
+  AWSEBCloudwatchAlarmHigh.aws:autoscaling:trigger:
+    UpperThreshold: '50'
+  AWSEBCloudwatchAlarmLow.aws:autoscaling:trigger:
+    BreachDuration: '5'
+    EvaluationPeriods: '2'
+    Period: '5'
+    LowerThreshold: '33'
+    MeasureName: RequestCount
+    Statistic: Sum
+    Unit: Count/Second
