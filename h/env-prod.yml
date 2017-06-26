@@ -43,18 +43,18 @@ OptionSettings:
   # Based on constant-load testing against the badge endpoint (which forms our
   # baseline load as of 2017-06-26), a single m4.large instance will begin to
   # suffer latency degradations as request rates approach 60 req/s,
-  # corresponding to outbound traffic of about 300kBps.
+  # corresponding to outbound traffic to the internet of about 65kBps.
   #
-  # Using a margin of safety, let's call this 250kBps. Multiplying this up by
+  # Using a margin of safety, let's call this 60kBps. Multiplying this up by
   # the 5 minute accumulation period, this gives a scale-out threshold of about
-  # 75e6 bytes per-instance over that period.
+  # 18e6 bytes per-instance over that period.
   AWSEBCloudwatchAlarmHigh.aws:autoscaling:trigger:
-    UpperThreshold: '75000000'
+    UpperThreshold: '18000000'
   # Similar constant-load testing shows that a single m4.large instance will
-  # happily serve 30 req/s (and ~150kBps) constantly, with relatively low
-  # utilisation. This gives us a scale in threshold of:
+  # happily serve 30 req/s (and ~32kBps to the internet) constantly, with
+  # relatively low utilisation. This gives us a scale in threshold of:
   #
-  #     150kBps * 5 min = 45e6 bytes
+  #     32kBps * 5 min = 9.6e6 bytes
   #
   # BUT it is important that the scale-in threshold is less than 1/2 of the
   # scale-out threshold (UpperThreshold) by some margin, otherwise overall
@@ -68,7 +68,7 @@ OptionSettings:
     BreachDuration: '5'
     EvaluationPeriods: '2'
     Period: '5'
-    LowerThreshold: '33000000'
+    LowerThreshold: '8100000'
     MeasureName: NetworkOut
     Statistic: Average
     Unit: Bytes
