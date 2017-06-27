@@ -58,9 +58,18 @@ eb-manifest-settings <"$MANIFEST" >"$OPTION_SETTINGS_FILE"
 trap 'rm "$OPTION_SETTINGS_FILE"' EXIT
 
 
+# We also need to parse out the ElasticBeanstalk platform ARN and
+# and pass it to the `--platform-arn` parameter.
+
+status "parsing platform ARN"
+
+EB_PLATFORM_ARN=$(eb-manifest-platform <"$MANIFEST")
+
+
 status "updating environment"
 
 aws elasticbeanstalk update-environment \
     --application-name "$APP" \
     --environment-name "${APP}-${ENV}" \
+    --platform-arn "$EB_PLATFORM_ARN" \
     --option-settings file://"$OPTION_SETTINGS_FILE"
