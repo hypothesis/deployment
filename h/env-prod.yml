@@ -45,11 +45,11 @@ OptionSettings:
   # suffer latency degradations as request rates approach 60 req/s,
   # corresponding to outbound traffic to the internet of about 65kBps.
   #
-  # Using a margin of safety, let's call this 60kBps. Multiplying this up by
+  # Using a margin of safety, let's call this 50kBps. Multiplying this up by
   # the 5 minute accumulation period, this gives a scale-out threshold of about
-  # 18e6 bytes per-instance over that period.
+  # 15e6 bytes per-instance over that period.
   AWSEBCloudwatchAlarmHigh.aws:autoscaling:trigger:
-    UpperThreshold: '18000000'
+    UpperThreshold: '15000000'
   # Similar constant-load testing shows that a single m4.large instance will
   # happily serve 30 req/s (and ~32kBps to the internet) constantly, with
   # relatively low utilisation. This gives us a scale in threshold of:
@@ -68,7 +68,7 @@ OptionSettings:
     BreachDuration: '5'
     EvaluationPeriods: '2'
     Period: '5'
-    LowerThreshold: '8100000'
+    LowerThreshold: '7000000'
     MeasureName: NetworkOut
     Statistic: Average
     Unit: Bytes
