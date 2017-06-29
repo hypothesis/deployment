@@ -53,13 +53,26 @@ fi
 
 status "preparing application source bundle"
 
+SRCBUNDLEDIR=$(mktemp -d)
+
 # Use JQ to append ":<APP_DOCKER_TAG>" to the image name in the template JSON
 # file.
-SRCBUNDLE=$(mktemp)
-jq ".Image.Name += \":${APP_DOCKER_TAG}\"" <"${APP}/Dockerrun.aws.json" >"$SRCBUNDLE"
+jq ".Image.Name += \":${APP_DOCKER_TAG}\"" <"${APP}/Dockerrun.aws.json" >"$SRCBUNDLEDIR/Dockerrun.aws.json"
+
+# Copy additional configuration
+EBEXTENSIONS="${SRCBUNDLEDIR}/.ebextensions/"
+if [ -d "common/ebextensions" ]; then
+  mkdir -p "$EBEXTENSIONS"
+  cp common/ebextensions/*.config "$EBEXTENSIONS"
+fi
+# Allow application to override common ebextensions
+if [ -d "${APP}/ebextensions" ]; then
+  mkdir -p "$EBEXTENSIONS"
+  cp ${APP}/ebextensions/*.config "$EBEXTENSIONS"
+fi
 
 # And clean up when we're done...
-trap 'rm "$SRCBUNDLE"' EXIT
+trap 'rm -r "$SRCBUNDLEDIR"' EXIT
 
 
 status "fetching storage location"
@@ -70,7 +83,13 @@ EB_BUCKET=$(aws elasticbeanstalk create-storage-location --query S3Bucket --outp
 status "uploading application version to S3"
 
 VERSION_LABEL="${APP}-$(date -u +"%Y%m%dT%H%M%SZ")-${APP_DOCKER_TAG}"
-aws s3 cp --quiet "$SRCBUNDLE" "s3://${EB_BUCKET}/${APP}/${VERSION_LABEL}.json"
+SRCBUNDLE="${SRCBUNDLEDIR}/bundle.zip"
+
+pushd "$SRCBUNDLEDIR"
+zip -r "$SRCBUNDLE" .
+popd
+
+aws s3 cp --quiet "$SRCBUNDLE" "s3://${EB_BUCKET}/${APP}/${VERSION_LABEL}.zip"
 
 
 status "creating application version in EB"
@@ -78,7 +97,7 @@ status "creating application version in EB"
 aws elasticbeanstalk create-application-version \
     --application-name "$APP" \
     --version-label "$VERSION_LABEL" \
-    --source-bundle "S3Bucket=${EB_BUCKET},S3Key=${APP}/${VERSION_LABEL}.json" \
+    --source-bundle "S3Bucket=${EB_BUCKET},S3Key=${APP}/${VERSION_LABEL}.zip" \
     --process \
     --auto-create-application \
     --query 'ApplicationVersion.VersionLabel' \
