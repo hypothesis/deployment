@@ -52,22 +52,28 @@ pipeline {
     }
 
     stages {
-        stage('setup') {
+        stage('main') {
             steps {
                 script {
                     def label = "#${currentBuild.number} ${params.APP} " +
                                 "${params.ENV} ${params.TYPE}"
                     currentBuild.displayName = label
                 }
-                postSlack('start', params)
-            }
-        }
 
-        stage('main') {
-            steps {
-                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding',
-                                  credentialsId: 'aws-elasticbeanstalk-jenkins']]) {
-                    sh 'bin/jenkins'
+                // Before we start the deployment proper, we grab a named lock
+                // which ensures that only one deployment job can be acting on a
+                // specific environment at one time.
+                //
+                // That is, deployments for different apps can proceed in
+                // parallel, as can deployments to different environments for
+                // the same app, but deployments to the same app and environment
+                // must execute serially.
+                lock(resource: "${params.APP}-${params.ENV}-deploy") {
+                    postSlack('start', params)
+                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding',
+                                      credentialsId: 'aws-elasticbeanstalk-jenkins']]) {
+                        sh 'bin/jenkins'
+                    }
                 }
             }
         }
