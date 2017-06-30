@@ -1,0 +1,80 @@
+#!/usr/bin/env python
+
+"""
+Wait for an SSM task execution to finish.
+
+This script periodically polls the Systems Manager API to determine whether
+the command execution has finished or not. At the end of the execution it
+will display the command output.
+
+The script exits with a status code according to the Run-Command exit status.
+"""
+
+import argparse
+import datetime
+import sys
+import time
+
+import boto3
+
+IN_PROGRESS_STATUSES = ['Pending', 'In Progress', 'Delayed']
+
+parser = argparse.ArgumentParser()
+parser.add_argument('command_id')
+parser.add_argument('instance_id')
+
+
+def main():
+    args = parser.parse_args()
+    loop(args)
+
+
+def loop(args):
+    client = boto3.client('ssm')
+
+    while True:
+        resp = client.get_command_invocation(CommandId=args.command_id,
+                                             InstanceId=args.instance_id)
+        status = resp.get('Status')
+        if is_in_progress(status):
+            print('.', end='', flush=True)
+            time.sleep(5)
+        elif is_success(status):
+            print_outputs(resp)
+            sys.exit(0)
+        else:
+            print_outputs(stdout, stderr)
+            abort('Command finished with errors.')
+
+
+def is_in_progress(status):
+    return status in ['Pending', 'InProgress', 'Delayed']
+
+
+def is_success(status):
+    return status == 'Success'
+
+
+def print_outputs(response):
+    status('stdout output:')
+    print(response.get('StandardOutputContent'))
+    print('')
+    status('stderr output:')
+    print(response.get('StandardErrorContent'))
+    print('')
+    status('full logs available on S3:')
+    status('  stdout: %s' % response.get('StandardOutputUrl'))
+    status('  stderr: %s' % response.get('StandardErrorUrl'))
+
+
+def status(message):
+    print('---> %s' % message)
+
+
+def abort(message):
+    print('Error: {}'.format(message), file=sys.stderr)
+    sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()
