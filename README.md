@@ -19,15 +19,15 @@ directory:
 
 | Name                                               | Description                                                                                                |
 |----------------------------------------------------|------------------------------------------------------------------------------------------------------------|
-| ['eb-deploy'](bin/eb-deploy)                       | Triggers a deployment of a specific application version to a specific environment in EB.                   |
-| ['eb-env-create'](bin/eb-env-create)               | Create an EB environment from scratch based on a YAML configuration file.                                  |
-| ['eb-env-exists'](bin/eb-env-exists)               | Check if an EB environment exists.                                                                         |
-| ['eb-env-sync'](bin/eb-env-sync)                   | Trigger an environment update to synchronise configuration with the YAML configuration file.               |
-| ['eb-env-version'](bin/eb-env-version)             | Report the deployed application version label in a specific environment.                                   |
-| ['eb-env-wait'](bin/eb-env-wait)                   | Wait for an EB environment to return to the 'Ready' state while tailing the event log.                     |
-| ['eb-manifest-platform'](bin/eb-manifest-platform) | Extract the the "Platform ARN" from a YAML environment configuration file.                                 |
-| ['eb-manifest-settings'](bin/eb-manifest-settings) | Extract "option settings" from a YAML environment configuration file in a format suitable for the AWS CLI. |
-| ['eb-release'](bin/eb-release)                     | Create a new application version in Elastic Beanstalk based on a specific Docker tag.                      |
+| [`eb-deploy`](bin/eb-deploy)                       | Triggers a deployment of a specific application version to a specific environment in EB.                   |
+| [`eb-env-create`](bin/eb-env-create)               | Create an EB environment from scratch based on a YAML configuration file.                                  |
+| [`eb-env-exists`](bin/eb-env-exists)               | Check if an EB environment exists.                                                                         |
+| [`eb-env-sync`](bin/eb-env-sync)                   | Trigger an environment update to synchronise configuration with the YAML configuration file.               |
+| [`eb-env-version`](bin/eb-env-version)             | Report the deployed application version label in a specific environment.                                   |
+| [`eb-env-wait`](bin/eb-env-wait)                   | Wait for an EB environment to return to the `Ready` state while tailing the event log.                     |
+| [`eb-manifest-platform`](bin/eb-manifest-platform) | Extract the the "Platform ARN" from a YAML environment configuration file.                                 |
+| [`eb-manifest-settings`](bin/eb-manifest-settings) | Extract "option settings" from a YAML environment configuration file in a format suitable for the AWS CLI. |
+| [`eb-release`](bin/eb-release)                     | Create a new application version in Elastic Beanstalk based on a specific Docker tag.                      |
 
 Some of these scripts rely on application-specific configuration files which
 live in a directory with the same name as the application. For example, the EB
