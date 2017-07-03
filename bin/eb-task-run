@@ -1,0 +1,105 @@
+#!/bin/sh
+
+set -eu
+
+usage () {
+    echo "Usage: $(basename "$0") <APP> <ENV> <TIMEOUT> <COMMAND>"
+    echo
+    echo "Run a command inside the Docker container of a running Elastic Beanstalk"
+    echo "instance and tail the output."
+    echo
+    echo "  APP            the name of the application, e.g. 'bouncer'"
+    echo "  ENV            the environment: typically 'qa' or 'prod'"
+    echo "  TIMEOUT        the command timeout in seconds"
+    echo "  COMMAND        the command to run, e.g. 'hypothesis user admin myuser'"
+    echo
+    echo "Note that the selected instance will be protected from a scale-in event"
+    echo "for the duration of the command."
+}
+
+abort () {
+    echo "Error:" "$@" >&2
+    echo "Aborting!" >&2
+    exit 1
+}
+
+status () {
+    echo "--->" "$@" >&2
+}
+
+if [ "$#" -ne 4 ]; then
+    usage >&2
+    exit 1
+fi
+
+PATH="$(dirname "$0"):${PATH}"
+
+APP=$1
+ENV=$2
+TIMEOUT=$3
+COMMAND=$4
+
+
+if ! eb-env-exists "$APP" "$ENV"; then
+    abort "$ENV environment doesn't exist for $APP"
+fi
+
+
+# Select a running instance for the given application and environment.
+
+status "selecting instance"
+
+INSTANCE_ID=$(aws ec2 describe-instances \
+                  --filters "Name=tag:elasticbeanstalk:environment-name,Values=${APP}-${ENV}" \
+                            "Name=instance-state-name,Values=running" \
+                  --query "Reservations[0].Instances[0].InstanceId" \
+                  --output text)
+
+if [ "$INSTANCE_ID" = "None" ]; then
+  abort "Could not find a running instance for $APP and $ENV"
+fi
+
+
+# Protect instance from a scale-in event
+
+status "protecting instance from a scale-in event"
+
+remove_instance_protection() {
+  asg_name=$1
+  instance_id=$2
+
+  status "removing instance protection"
+  echo aws autoscaling set-instance-protection \
+      --auto-scaling-group-name "$asg_name" \
+      --instance-ids "$instance_id" \
+      --no-protected-from-scale-in
+}
+
+ASG_NAME=$(aws elasticbeanstalk describe-environment-resources \
+               --environment-name "${APP}-${ENV}" \
+               --query "EnvironmentResources.AutoScalingGroups[0].Name" \
+               --output text)
+
+aws autoscaling set-instance-protection \
+    --auto-scaling-group-name "$ASG_NAME" \
+    --instance-ids "$INSTANCE_ID" \
+    --protected-from-scale-in
+
+trap "remove_instance_protection '$ASG_NAME' '$INSTANCE_ID'" EXIT
+
+
+status "initiating command"
+
+COMMAND_ID=$(aws ssm send-command \
+                 --instance-ids "$INSTANCE_ID" \
+                 --document-name "AWS-RunShellScript" \
+                 --parameters "{
+                     \"executionTimeout\": [\"$TIMEOUT\"],
+                     \"commands\": [\"/usr/local/sbin/run-docker-task $COMMAND\"]
+                 }" \
+                 --query 'Command.CommandId' \
+                 --output-s3-bucket-name 'elasticbeanstalk-run-command-output' \
+                 --output text)
+
+status "running command"
+eb-task-wait "$COMMAND_ID" "$INSTANCE_ID"
