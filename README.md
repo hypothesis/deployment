@@ -28,6 +28,8 @@ directory:
 | [`eb-manifest-platform`](bin/eb-manifest-platform) | Extract the the "Platform ARN" from a YAML environment configuration file.                                 |
 | [`eb-manifest-settings`](bin/eb-manifest-settings) | Extract "option settings" from a YAML environment configuration file in a format suitable for the AWS CLI. |
 | [`eb-release`](bin/eb-release)                     | Create a new application version in Elastic Beanstalk based on a specific Docker tag.                      |
+| [`eb-task-run`](bin/eb-task-run)                   | Run a command inside the Docker container of a running EB instance and tail the output.                    |
+| [`eb-task-wait`](bin/eb-task-wait)                 | Wait for an AWS SSM Run Command invocation to finish and print the log output.                             |
 
 Some of these scripts rely on application-specific configuration files which
 live in a directory with the same name as the application. For example, the EB
