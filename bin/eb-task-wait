@@ -43,7 +43,7 @@ def loop(args):
             print_outputs(resp)
             sys.exit(0)
         else:
-            print_outputs(stdout, stderr)
+            print_outputs(resp)
             abort('Command finished with errors.')
 
 
