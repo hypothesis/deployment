@@ -19,12 +19,7 @@ def postSlack(state, env, task) {
     ]
     def colors = ['start': 'good', 'success': 'good', 'error': 'danger']
 
-    // keep sending messages to the default channel
     slackSend color: colors[state], message: messages[state]
-    // additionally, send messages to #feat-canvas by
-    // overriding the default channel using the `channel` parameter
-    // from: https://jenkins.io/doc/pipeline/steps/slack/
-    slackSend channel: "#feat-canvas", color: colors[state], message: messages[state]
 }
 
 pipeline {
