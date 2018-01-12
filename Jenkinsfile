@@ -22,6 +22,12 @@ def postSlack(state, params) {
     ]
     def colors = ['start': 'good', 'success': 'good', 'error': 'danger']
     slackSend color: colors[state], message: messages[state][params.TYPE]
+
+    // allow a single additional channel per repo as a target for the message
+    def additionalChannels = ['lms': '#feat-canvas']
+    if (additionalChannels.containsKey(params.APP)) {
+        slackSend channel: "${additionalChannels[params.APP]}", color: colors[state], message: messages[state][params.TYPE]
+    }
 }
 
 pipeline {
