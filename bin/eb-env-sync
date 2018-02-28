@@ -65,6 +65,11 @@ status "parsing platform ARN"
 
 EB_PLATFORM_ARN=$(eb-manifest-platform <"$MANIFEST")
 
+status "updating application resource lifecycle settings"
+
+aws elasticbeanstalk update-application-resource-lifecycle \
+    --application-name "$APP" \
+    --resource-lifecycle-config file://resource-lifecycle.json
 
 status "updating environment"
 

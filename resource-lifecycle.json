@@ -1,0 +1,9 @@
+{
+  "VersionLifecycleConfig": {
+    "MaxCountRule": {
+      "Enabled": true,
+      "MaxCount": 500,
+      "DeleteSourceFromS3": true
+    }
+  }
+}
