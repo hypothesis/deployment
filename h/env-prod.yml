@@ -38,7 +38,7 @@ OptionSettings:
     InstanceType: m4.large
     EC2KeyName: ops
   aws:autoscaling:asg:
-    MaxSize: '6'
+    MaxSize: '12'
     MinSize: '1'
   # Based on constant-load testing against the badge endpoint (which forms our
   # baseline load as of 2017-06-26), a single m4.large instance will begin to
