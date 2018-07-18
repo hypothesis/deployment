@@ -59,6 +59,8 @@ if [ "$INSTANCE_ID" = "None" ]; then
   abort "Could not find a running instance for $APP and $ENV"
 fi
 
+status "selected instance $INSTANCE_ID"
+
 
 # Protect instance from a scale-in event
 
@@ -90,6 +92,7 @@ trap "remove_instance_protection '$ASG_NAME' '$INSTANCE_ID'" EXIT
 
 status "initiating command"
 
+OUTPUT_BUCKET_NAME=elasticbeanstalk-run-command-output
 COMMAND_ID=$(aws ssm send-command \
                  --instance-ids "$INSTANCE_ID" \
                  --document-name "AWS-RunShellScript" \
@@ -98,8 +101,8 @@ COMMAND_ID=$(aws ssm send-command \
                      \"commands\": [\"/usr/local/sbin/run-docker-task $COMMAND\"]
                  }" \
                  --query 'Command.CommandId' \
-                 --output-s3-bucket-name 'elasticbeanstalk-run-command-output' \
+                 --output-s3-bucket-name "$OUTPUT_BUCKET_NAME" \
                  --output text)
 
-status "running command"
+status "running command $COMMAND_ID. Output is available in the \"$OUTPUT_BUCKET_NAME\" S3 bucket."
 eb-task-wait "$COMMAND_ID" "$INSTANCE_ID"
