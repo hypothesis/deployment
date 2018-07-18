@@ -7,7 +7,7 @@ def tasks = [
     'db upgrade to head (timeout 10m)': [cmd: 'migrate upgrade head', timeout: '600', confirm: true],
     'db upgrade to next (timeout 10m)': [cmd: 'migrate upgrade +1', timeout: '600', confirm: true],
     'db downgrade to previous (timeout 10m)': [cmd: 'migrate downgrade -1', timeout: '600', confirm: true],
-    'search reindex (timeout 2h)': [cmd: 'search reindex', timeout: '7200', confirm: true]
+    'search reindex (timeout 4h)': [cmd: 'search reindex', timeout: '14400', confirm: true]
 ]
 
 def taskChoices = tasks.keySet().join('\n')
