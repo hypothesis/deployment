@@ -5,6 +5,9 @@ EnvironmentTier:
   Type: Standard
   Name: WebServer
 OptionSettings:
+  aws:elasticbeanstalk:cloudwatch:logs:
+    StreamLogs: true
+    RetentionInDays: "7"
   aws:elasticbeanstalk:command:
     DeploymentPolicy: Immutable
   aws:elasticbeanstalk:environment:
