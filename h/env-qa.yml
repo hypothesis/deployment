@@ -9,7 +9,9 @@ OptionSettings:
     StreamLogs: true
     RetentionInDays: "7"
   aws:elasticbeanstalk:command:
-    DeploymentPolicy: Immutable
+    DeploymentPolicy: Rolling  #RollingWithAdditionalBatch #Immutable ## testing
+    # BatchSizeType: Fixed  ## testing
+    #BatchSize: 1 ## testing
   aws:elasticbeanstalk:environment:
     EnvironmentType: LoadBalanced
     LoadBalancerType: application
@@ -17,7 +19,7 @@ OptionSettings:
   aws:elasticbeanstalk:environment:process:default:
     HealthCheckPath: /_status
   aws:elasticbeanstalk:healthreporting:system:
-    SystemType: enhanced
+    SystemType: enhanced #basic ## testing
   aws:ec2:vpc:
     Subnets: subnet-0f19e456,subnet-ee2c418b
     VPCId: vpc-bc4d91d9
@@ -40,3 +42,7 @@ OptionSettings:
     IamInstanceProfile: aws-elasticbeanstalk-ec2-role
     InstanceType: t2.micro
     EC2KeyName: ops
+  # aws:elb:policies:  ##testing
+  #   ConnectionDrainingEnabled: true
+  #   ConnectionDrainingTimeout: 10
+
