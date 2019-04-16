@@ -22,7 +22,7 @@ status () {
     echo "--->" "$@" >&2
 }
 
-if [ "$#" -ne 2 ]; then
+if [ "$#" -ne 3 ]; then
     usage >&2
     exit 1
 fi
@@ -33,6 +33,7 @@ PATH="$(dirname "$0"):${PATH}"
 
 APP=$1
 APP_DOCKER_TAG=$2
+APP_ENV=$3
 
 if [ ! -f "${APP}/Dockerrun.aws.json" ]; then
     abort "there must be a Dockerrun.aws.json in the app directory (${APP}/)"
@@ -66,9 +67,9 @@ if [ -d "common/ebextensions" ]; then
   cp common/ebextensions/*.config "$EBEXTENSIONS"
 fi
 # Allow application to override common ebextensions
-if [ -d "${APP}/ebextensions" ]; then
+if [ -d "${APP}/ebextensions/${APP_ENV}" ]; then
   mkdir -p "$EBEXTENSIONS"
-  cp ${APP}/ebextensions/*.config "$EBEXTENSIONS"
+  cp ${APP}/ebextensions/${APP_ENV}/*.config "$EBEXTENSIONS"
 fi
 
 # And clean up when we're done...

@@ -38,7 +38,7 @@ if [ "$TYPE" = "deploy" ]; then
     abort "cannot proceed with deploy unless \$APP_DOCKER_VERSION is specified"
   fi
 
-  version_label=$(eb-release "$APP" "$APP_DOCKER_VERSION")
+  version_label=$(eb-release "$APP" "$APP_DOCKER_VERSION" "$ENV")
   eb-deploy "$APP" "$ENV" "$version_label"
 
 elif [ "$TYPE" = "redeploy" ]; then
