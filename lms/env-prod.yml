@@ -11,7 +11,7 @@ OptionSettings:
   aws:elasticbeanstalk:command:
     DeploymentPolicy: RollingWithAdditionalBatch
     BatchSizeType: Percentage
-    BatchSize: 100
+    BatchSize: '100'
   aws:elasticbeanstalk:environment:
     EnvironmentType: LoadBalanced
     LoadBalancerType: application
