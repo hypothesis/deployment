@@ -9,7 +9,9 @@ OptionSettings:
     StreamLogs: true
     RetentionInDays: "7"
   aws:elasticbeanstalk:command:
-    DeploymentPolicy: Immutable
+    DeploymentPolicy: RollingWithAdditionalBatch
+    BatchSizeType: Percentage
+    BatchSize: 100
   aws:elasticbeanstalk:environment:
     EnvironmentType: LoadBalanced
     LoadBalancerType: application
@@ -40,3 +42,6 @@ OptionSettings:
     IamInstanceProfile: aws-elasticbeanstalk-ec2-role
     InstanceType: t2.nano
     EC2KeyName: ops
+  aws:autoscaling:asg:
+    MaxSize: '4'
+    MinSize: '2'
