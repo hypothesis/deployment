@@ -1,3 +1,8 @@
 PyYAML===3.13
 awscli
 boto3
+# futures seems to be a dependency of s3transfer, which is a dependency of
+# awscli and boto3. But installing futures fails because the lastest version of
+# futures (3.2.0 at the time of writing) doesn't support Python 3. Pin it to
+# the most recent version that does install in Python 3.
+futures===3.1.1
