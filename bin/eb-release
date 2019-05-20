@@ -108,14 +108,11 @@ aws elasticbeanstalk create-application-version \
 status "waiting for application version to be processed"
 
 while true; do
-  echo "APP: $APP"
-  echo "VERSION_LABEL: $VERSION_LABEL"
   STATUS=$(aws elasticbeanstalk describe-application-versions \
                --application-name "$APP" \
                --version-label "$VERSION_LABEL" \
                --query 'ApplicationVersions[0].Status' \
                --output text)
-  echo "STATUS: $STATUS"
   if [ "$STATUS" = "PROCESSING" ]; then sleep 2; continue; fi
   if [ "$STATUS" = "FAILED" ]; then
     status "application version processing failed"
