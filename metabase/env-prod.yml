@@ -43,3 +43,5 @@ OptionSettings:
   aws:autoscaling:asg:
     MaxSize: '1'
     MinSize: '1'
+  aws:elbv2:loadbalancer:
+    IdleTimeout: 300
