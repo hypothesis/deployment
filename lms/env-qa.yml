@@ -38,5 +38,5 @@ OptionSettings:
   aws:autoscaling:launchconfiguration:
     SecurityGroups: sg-fdf9c19a,sg-86756ee0
     IamInstanceProfile: aws-elasticbeanstalk-ec2-role
-    InstanceType: t3.micro
+    InstanceType: t2.micro
     EC2KeyName: ops
