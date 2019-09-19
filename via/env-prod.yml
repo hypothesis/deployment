@@ -15,6 +15,7 @@ OptionSettings:
     HealthCheckPath: /
   aws:elasticbeanstalk:healthreporting:system:
     SystemType: enhanced
+    HealthCheckSuccessThreshold: Degraded
   aws:ec2:vpc:
     Subnets: subnet-0f19e456,subnet-ee2c418b
     VPCId: vpc-bc4d91d9
