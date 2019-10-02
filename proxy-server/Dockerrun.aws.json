@@ -1,0 +1,11 @@
+{
+  "AWSEBDockerrunVersion": "1",
+  "Image": {
+    "Name": "hypothesis/proxy-server"
+  },
+  "Ports": [
+    {
+      "ContainerPort": "9081"
+    }
+  ]
+}
