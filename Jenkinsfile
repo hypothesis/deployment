@@ -1,7 +1,7 @@
 #!groovy
 
 // The list of applications which can be deployed.
-def deployApplications = ['bouncer', 'h', 'h-periodic', 'injecture', 'lms', 'metabase', 'via'].join('\n')
+def deployApplications = ['bouncer', 'h', 'h-periodic', 'injecture', 'lms', 'metabase', 'via', 'proxy-server'].join('\n')
 // The list of deployment types.
 def deployTypes = ['deploy', 'redeploy', 'sync-env'].join('\n')
 // The list of environments. It is assumed that each application has one of each
