@@ -39,10 +39,10 @@ OptionSettings:
     SecurityGroups: sg-fdf9c19a,sg-a6073fc1
     IamInstanceProfile: aws-elasticbeanstalk-ec2-role
     InstanceType: m4.large
-    EC2KeyName: ops
+    EC2KeyName: ops-20191105
   aws:autoscaling:asg:
     MaxSize: '12'
-    MinSize: '1'
+    MinSize: '4'
   # Based on constant-load testing against the badge endpoint (which forms our
   # baseline load as of 2017-06-26), a single m4.large instance will begin to
   # suffer latency degradations as request rates approach 60 req/s,
