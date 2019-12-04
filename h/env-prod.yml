@@ -39,7 +39,7 @@ OptionSettings:
     SecurityGroups: sg-fdf9c19a,sg-a6073fc1
     IamInstanceProfile: aws-elasticbeanstalk-ec2-role
     InstanceType: m4.large
-    EC2KeyName: ops
+    EC2KeyName: ops-20191105
   aws:autoscaling:asg:
     MaxSize: '12'
     MinSize: '1'
