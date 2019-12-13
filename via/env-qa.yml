@@ -22,7 +22,7 @@ OptionSettings:
     ELBScheme: public
     AssociatePublicIpAddress: true
   aws:autoscaling:updatepolicy:rollingupdate:
-    RollingUpdateType: Immutable
+    RollingUpdateType: Health
     RollingUpdateEnabled: true
   aws:elbv2:listener:default:
     ListenerEnabled: false
