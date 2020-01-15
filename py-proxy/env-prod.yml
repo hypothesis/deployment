@@ -43,5 +43,5 @@ OptionSettings:
     InstanceType: t3.micro
     EC2KeyName: ops-20191105
   aws:autoscaling:asg:
-    MaxSize: '4'
-    MinSize: '2'
+    MaxSize: '12'
+    MinSize: '4'
