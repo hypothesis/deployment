@@ -1,6 +1,6 @@
 AWSConfigurationTemplateVersion: 1.1.0.0
 Platform:
-  PlatformArn: arn:aws:elasticbeanstalk:us-west-1::platform/Docker running on 64bit Amazon Linux/2.7.0
+  PlatformArn: arn:aws:elasticbeanstalk:us-west-1::platform/Docker running on 64bit Amazon Linux/2.14.0
 EnvironmentTier:
   Type: Standard
   Name: WebServer
@@ -9,9 +9,7 @@ OptionSettings:
     StreamLogs: true
     RetentionInDays: "7"
   aws:elasticbeanstalk:command:
-    DeploymentPolicy: Rolling  #RollingWithAdditionalBatch #Immutable ## testing
-    # BatchSizeType: Fixed  ## testing
-    #BatchSize: 1 ## testing
+    DeploymentPolicy: Rolling
   aws:elasticbeanstalk:environment:
     EnvironmentType: LoadBalanced
     LoadBalancerType: application
@@ -19,7 +17,7 @@ OptionSettings:
   aws:elasticbeanstalk:environment:process:default:
     HealthCheckPath: /_status
   aws:elasticbeanstalk:healthreporting:system:
-    SystemType: enhanced #basic ## testing
+    SystemType: enhanced
   aws:ec2:vpc:
     Subnets: subnet-0f19e456,subnet-ee2c418b
     VPCId: vpc-bc4d91d9
@@ -27,7 +25,7 @@ OptionSettings:
     ELBScheme: public
     AssociatePublicIpAddress: true
   aws:autoscaling:updatepolicy:rollingupdate:
-    RollingUpdateType: Immutable
+    RollingUpdateType: Health
     RollingUpdateEnabled: true
   aws:elbv2:listener:default:
     ListenerEnabled: false
@@ -40,9 +38,5 @@ OptionSettings:
   aws:autoscaling:launchconfiguration:
     SecurityGroups: sg-fdf9c19a,sg-a6073fc1
     IamInstanceProfile: aws-elasticbeanstalk-ec2-role
-    InstanceType: t2.micro
-    EC2KeyName: ops
-  # aws:elb:policies:  ##testing
-  #   ConnectionDrainingEnabled: true
-  #   ConnectionDrainingTimeout: 10
-
+    InstanceType: t3a.small
+    EC2KeyName: ops-20191105

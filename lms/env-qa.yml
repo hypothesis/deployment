@@ -9,7 +9,7 @@ OptionSettings:
     StreamLogs: true
     RetentionInDays: "7"
   aws:elasticbeanstalk:command:
-    DeploymentPolicy: Immutable
+    DeploymentPolicy: Rolling
   aws:elasticbeanstalk:environment:
     EnvironmentType: LoadBalanced
     LoadBalancerType: application
@@ -25,7 +25,7 @@ OptionSettings:
     ELBScheme: public
     AssociatePublicIpAddress: true
   aws:autoscaling:updatepolicy:rollingupdate:
-    RollingUpdateType: Immutable
+    RollingUpdateType: Health
     RollingUpdateEnabled: true
   aws:elbv2:listener:default:
     ListenerEnabled: false
@@ -39,4 +39,4 @@ OptionSettings:
     SecurityGroups: sg-fdf9c19a,sg-86756ee0
     IamInstanceProfile: aws-elasticbeanstalk-ec2-role
     InstanceType: t2.micro
-    EC2KeyName: ops
+    EC2KeyName: ops-20191105
