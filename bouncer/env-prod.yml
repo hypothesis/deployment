@@ -23,7 +23,7 @@ OptionSettings:
     VPCId: vpc-bc4d91d9
     ELBSubnets: subnet-9bf985c3,subnet-3b21015f
     ELBScheme: public
-    AssociatePublicIpAddress: true
+    AssociatePublicIpAddress: false
   aws:autoscaling:updatepolicy:rollingupdate:
     RollingUpdateType: Immutable
     RollingUpdateEnabled: true
