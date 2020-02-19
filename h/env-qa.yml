@@ -9,11 +9,9 @@ OptionSettings:
     StreamLogs: true
     RetentionInDays: "7"
   aws:elasticbeanstalk:command:
-    DeploymentPolicy: RollingWithAdditionalBatch
-    BatchSizeType: Percentage
-    BatchSize: '100'  
+    DeploymentPolicy: Rolling 
   aws:autoscaling:updatepolicy:rollingupdate:
-    RollingUpdateType: Health
+    RollingUpdateType: Immutable
     RollingUpdateEnabled: true
   aws:elasticbeanstalk:environment:
     EnvironmentType: LoadBalanced
@@ -23,6 +21,7 @@ OptionSettings:
     HealthCheckPath: /_status
   aws:elasticbeanstalk:healthreporting:system:
     SystemType: enhanced
+    HealthCheckSuccessThreshold: Degraded
   aws:ec2:vpc:
     Subnets: subnet-0f19e456,subnet-ee2c418b
     VPCId: vpc-bc4d91d9
