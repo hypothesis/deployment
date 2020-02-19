@@ -26,7 +26,7 @@ OptionSettings:
     VPCId: vpc-bc4d91d9
     ELBSubnets: subnet-9bf985c3,subnet-3b21015f
     ELBScheme: public
-    AssociatePublicIpAddress: false 
+    AssociatePublicIpAddress: true 
   aws:elbv2:listener:default:
     ListenerEnabled: false
   aws:elbv2:listener:443:
