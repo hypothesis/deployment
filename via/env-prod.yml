@@ -6,7 +6,9 @@ EnvironmentTier:
   Name: WebServer
 OptionSettings:
   aws:elasticbeanstalk:command:
-    DeploymentPolicy: Immutable
+    DeploymentPolicy: RollingWithAdditionalBatch
+    BatchSizeType: Percentage
+    BatchSize: '100'
   aws:elasticbeanstalk:environment:
     EnvironmentType: LoadBalanced
     LoadBalancerType: application
