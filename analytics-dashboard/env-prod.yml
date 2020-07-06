@@ -14,7 +14,7 @@ OptionSettings:
     LoadBalancerType: application
     ServiceRole: aws-elasticbeanstalk-service-role
   aws:elasticbeanstalk:environment:process:default:
-    HealthCheckPath: /
+    HealthCheckPath: /_status
   aws:elasticbeanstalk:healthreporting:system:
     SystemType: enhanced
     HealthCheckSuccessThreshold: Severe
@@ -38,7 +38,7 @@ OptionSettings:
   aws:autoscaling:launchconfiguration:
     SecurityGroups: sg-fdf9c19a
     IamInstanceProfile: aws-elasticbeanstalk-ec2-role
-    InstanceType: t2.micro
+    InstanceType: t3.nano
     EC2KeyName: ops-20191105
   aws:autoscaling:asg:
     MaxSize: '3'
