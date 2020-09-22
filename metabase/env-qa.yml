@@ -1,6 +1,6 @@
 AWSConfigurationTemplateVersion: 1.1.0.0
 Platform:
-  PlatformArn: arn:aws:elasticbeanstalk:us-west-1::platform/Docker running on 64bit Amazon Linux/2.7.0
+  PlatformArn: arn:aws:elasticbeanstalk:us-west-1::platform/Docker running on 64bit Amazon Linux/2.14.0
 EnvironmentTier:
   Type: Standard
   Name: WebServer
@@ -38,7 +38,7 @@ OptionSettings:
   aws:autoscaling:launchconfiguration:
     SecurityGroups: sg-fdf9c19a,sg-816374e6
     IamInstanceProfile: aws-elasticbeanstalk-ec2-role
-    InstanceType: t2.micro
+    InstanceType: t3.micro
     EC2KeyName: ops-20191105
   aws:autoscaling:asg:
     MaxSize: '1'
