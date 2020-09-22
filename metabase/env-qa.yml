@@ -9,7 +9,7 @@ OptionSettings:
     StreamLogs: true
     RetentionInDays: "7"
   aws:elasticbeanstalk:command:
-    DeploymentPolicy: Immutable
+    DeploymentPolicy: Rolling
   aws:elasticbeanstalk:environment:
     EnvironmentType: LoadBalanced
     LoadBalancerType: application
