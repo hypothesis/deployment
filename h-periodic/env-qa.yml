@@ -6,7 +6,7 @@ EnvironmentTier:
   Name: WebServer
 OptionSettings:
   aws:elasticbeanstalk:command:
-    DeploymentPolicy: Immutable
+    DeploymentPolicy: AllAtOnce
   aws:elasticbeanstalk:environment:
     EnvironmentType: LoadBalanced
     LoadBalancerType: application
