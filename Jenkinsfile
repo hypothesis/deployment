@@ -1,12 +1,12 @@
 #!groovy
 
 // The list of applications which can be deployed.
-def deployApplications = ['analytics-dashboard', 'bouncer', 'h', 'h-periodic', 'lms', 'metabase', 'via', 'via3', 'viahtml3'].join('\n')
+def deployApplications = ['analytics-dashboard', 'bouncer', 'h', 'h-periodic', 'lms', 'metabase', 'via', 'via3', 'viahtml'].join('\n')
 // The list of deployment types.
 def deployTypes = ['deploy', 'redeploy', 'sync-env'].join('\n')
 // The list of environments. It is assumed that each application has one of each
 // of these environments.
-def deployEnvironments = ['qa', 'prod'].join('\n')
+def deployEnvironments = ['qa', 'prod', 'qa3', 'prod3'].join('\n')
 
 def postSlack(state, params) {
     def messages = [
