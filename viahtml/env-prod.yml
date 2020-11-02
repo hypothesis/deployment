@@ -45,3 +45,13 @@ OptionSettings:
   aws:autoscaling:asg:
     MaxSize: '4'
     MinSize: '2'
+  aws:autoscaling:trigger:
+    MeasureName: CPUUtilization
+    Statistic: Average
+    Unit: Percent
+    Period: '2'
+    EvaluationPeriods: '2'
+    UpperThreshold: '60'
+    UpperBreachScaleIncrement: '1'
+    LowerThreshold: '30'
+    LowerBreachScaleIncrement: '-1'
