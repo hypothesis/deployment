@@ -1,6 +1,6 @@
 AWSConfigurationTemplateVersion: 1.1.0.0
 Platform:
-  PlatformArn: arn:aws:elasticbeanstalk:us-west-1::platform/64bit Amazon Linux 2 v3.2.0 running Docker/3.2.0
+  PlatformArn: arn:aws:elasticbeanstalk:us-west-1::platform/64bit Amazon Linux 2 v3.2.0 running Docker
 EnvironmentTier:
   Type: Standard
   Name: WebServer
