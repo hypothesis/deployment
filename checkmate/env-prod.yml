@@ -37,6 +37,8 @@ OptionSettings:
     SSLCertificateArns: arn:aws:acm:us-west-1:964867326460:certificate/ef36b626-66e0-495e-813c-71a3b883f692
     DefaultProcess: default
     Protocol: HTTPS
+  aws:elbv2:loadbalancer:
+    SecurityGroups: sg-0fb3e01d26a27a182
   aws:autoscaling:launchconfiguration:
     SecurityGroups: sg-fdf9c19a
     IamInstanceProfile: aws-elasticbeanstalk-ec2-role
