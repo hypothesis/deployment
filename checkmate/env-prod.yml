@@ -38,7 +38,7 @@ OptionSettings:
     DefaultProcess: default
     Protocol: HTTPS
   aws:elbv2:loadbalancer:
-    SecurityGroups: sg-0fb3e01d26a27a182
+    SecurityGroups: sg-0fb3e01d26a27a182, sg-03290275a3d5e7e9b
   aws:autoscaling:launchconfiguration:
     SecurityGroups: sg-fdf9c19a
     IamInstanceProfile: aws-elasticbeanstalk-ec2-role
