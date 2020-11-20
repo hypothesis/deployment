@@ -45,8 +45,8 @@ OptionSettings:
     InstanceType: t3.small
     EC2KeyName: ops-20191105
   aws:autoscaling:asg:
-    MaxSize: '1'
-    MinSize: '1'
+    MaxSize: '4'
+    MinSize: '2'
   aws:autoscaling:trigger:
     MeasureName: CPUUtilization
     Statistic: Average
