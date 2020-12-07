@@ -33,6 +33,12 @@ if [ -z "$ENV" ]; then
     abort "cannot proceed unless \$ENV is specified"
 fi
 
+if [ "$APP" = "h-periodic" ]; then
+  if [ "$ENV" = "qa" ]; then
+    abort "cannot proceed with h-periodic qa deployment"
+  fi
+fi
+
 if [ "$TYPE" = "deploy" ]; then
   if [ -z "$APP_DOCKER_VERSION" ]; then
     abort "cannot proceed with deploy unless \$APP_DOCKER_VERSION is specified"
