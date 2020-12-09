@@ -6,7 +6,7 @@ EnvironmentTier:
   Name: WebServer
 OptionSettings:
   aws:elasticbeanstalk:command:
-    DeploymentPolicy: RollingWithAdditionalBatch
+    DeploymentPolicy: Immutable
   aws:elasticbeanstalk:environment:
     EnvironmentType: LoadBalanced
     LoadBalancerType: application
@@ -34,5 +34,5 @@ OptionSettings:
     EC2KeyName: ops-20191105
 
   aws:autoscaling:asg:
-    MaxSize: '2'
+    MaxSize: '1'
     MinSize: '1'
