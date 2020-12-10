@@ -6,10 +6,9 @@ EnvironmentTier:
   Name: WebServer
 OptionSettings:
   aws:elasticbeanstalk:command:
-    DeploymentPolicy: Immutable
+    DeploymentPolicy: AllAtOnce
   aws:elasticbeanstalk:environment:
-    EnvironmentType: LoadBalanced
-    LoadBalancerType: application
+    EnvironmentType: SingleInstance
     ServiceRole: aws-elasticbeanstalk-service-role
   aws:elasticbeanstalk:environment:process:default:
     HealthCheckPath: /_status
@@ -18,21 +17,12 @@ OptionSettings:
   aws:ec2:vpc:
     Subnets: subnet-66b8413f,subnet-2fdcbe4a
     VPCId: vpc-bc4d91d9
-    ELBSubnets: subnet-66b8413f,subnet-2fdcbe4a
-    ELBScheme: internal
     AssociatePublicIpAddress: true
-  aws:autoscaling:updatepolicy:rollingupdate:
-    RollingUpdateType: Immutable
-    RollingUpdateEnabled: true
-  aws:elbv2:listener:default:
-    ListenerEnabled: True
-    DefaultProcess: default
   aws:autoscaling:launchconfiguration:
     SecurityGroups: sg-fdf9c19a
     IamInstanceProfile: aws-elasticbeanstalk-ec2-role
     InstanceType: t2.nano
     EC2KeyName: ops-20191105
-
   aws:autoscaling:asg:
     MaxSize: '1'
     MinSize: '1'
