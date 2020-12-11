@@ -1,0 +1,88 @@
+#!groovy
+
+def environments = ['qa', 'prod'].join('\n')
+
+def tasks = [
+    'db current revision (timeout 10m)': [cmd: 'alembic -c conf/alembic.ini current', timeout: '600'],
+    'db upgrade to head (timeout 10m)': [cmd: 'alembic -c conf/alembic.ini upgrade head', timeout: '600', confirm: true],
+    'db upgrade to next (timeout 10m)': [cmd: 'alembic -c conf/alembic.ini upgrade +1', timeout: '600', confirm: true],
+    'db downgrade to previous (timeout 10m)': [cmd: 'alembic -c conf/alembic.ini downgrade -1', timeout: '600', confirm: true],
+]
+
+def taskChoices = tasks.keySet().join('\n')
+
+def postSlack(state, env, task) {
+    messages = [
+        'start': "Starting task \"${task}\" on checkmate-${env}",
+        'error': "Failed to run task \"${task}\" on checkmate-${env}",
+        'success': "Successfully ran task \"${task}\" on checkmate-${env}"
+    ]
+    def colors = ['start': 'good', 'success': 'good', 'error': 'danger']
+
+    slackSend color: colors[state], message: messages[state]
+}
+
+pipeline {
+    agent { dockerfile true }
+
+    parameters {
+        choice(name: 'ENV',
+               choices: environments,
+               description: 'Choose on which environment to run the given task.')
+        choice(name: 'TASK',
+               choices: taskChoices,
+               description: 'Choose which task to run on the given environment.')
+        string(name: 'TASK_TIMEOUT',
+               description: 'Each task defines its own default timeout, this can ' +
+                            'be overridden here. The value is in seconds.',
+               defaultValue: 'task-default')
+    }
+
+    environment {
+        AWS_DEFAULT_REGION = 'us-west-1'
+    }
+
+    stages {
+        stage('setup') {
+            steps {
+                script {
+                    currentBuild.displayName = "#${currentBuild.number} - " +
+                                               "${params.ENV} ${params.TASK}"
+                }
+            }
+        }
+
+        stage('main') {
+            steps {
+                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding',
+                                  credentialsId: 'aws-elasticbeanstalk-jenkins']]) {
+
+                    script {
+                        def task = tasks[params.TASK]
+                        if (task == null) {
+                            error("Cannot find task with name \"${params.TASK}\"")
+                        }
+
+                        def cmd = task['cmd']
+                        def timeout = task['timeout']
+
+                        if (params.TASK_TIMEOUT != 'task-default') {
+                            timeout = params.TASK_TIMEOUT
+                        }
+
+                        if (task['confirm'] == true) {
+                            input(message: "This task might be dangerous. Do you wish to continue?")
+                        }
+                        postSlack('start', params.ENV, params.TASK)
+                        sh "bin/eb-task-run checkmate ${params.ENV} ${timeout} \"${cmd}\""
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        failure { postSlack('error', params.ENV, params.TASK) }
+        success { postSlack('success', params.ENV, params.TASK) }
+    }
+}
