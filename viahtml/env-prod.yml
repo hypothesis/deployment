@@ -43,15 +43,15 @@ OptionSettings:
     InstanceType: t3.small
     EC2KeyName: ops-20191105
   aws:autoscaling:asg:
-    MaxSize: '4'
-    MinSize: '2'
+    MaxSize: '10'
+    MinSize: '4'
   aws:autoscaling:trigger:
     MeasureName: CPUUtilization
     Statistic: Average
     Unit: Percent
     Period: '2'
     EvaluationPeriods: '2'
-    UpperThreshold: '60'
-    UpperBreachScaleIncrement: '1'
-    LowerThreshold: '30'
+    UpperThreshold: '45'
+    UpperBreachScaleIncrement: '2'
+    LowerThreshold: '20'
     LowerBreachScaleIncrement: '-1'
