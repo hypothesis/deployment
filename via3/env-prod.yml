@@ -19,6 +19,16 @@ OptionSettings:
   aws:elasticbeanstalk:environment:process:default:
     HealthCheckPath: /_status
   aws:elasticbeanstalk:healthreporting:system:
+    ConfigDocument:
+      Rules:
+        Environment:
+          Application:
+            ApplicationRequests4xx:
+              Enabled: false
+          ELB:
+            ELBRequests4xx:
+              Enabled: false
+      Version: 1
     SystemType: enhanced
   aws:ec2:vpc:
     Subnets: subnet-0f19e456,subnet-ee2c418b
