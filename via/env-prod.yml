@@ -16,6 +16,16 @@ OptionSettings:
   aws:elasticbeanstalk:environment:process:default:
     HealthCheckPath: /
   aws:elasticbeanstalk:healthreporting:system:
+    ConfigDocument:
+      Rules:
+        Environment:
+          Application:
+            ApplicationRequests4xx:
+              Enabled: false
+          ELB:
+            ELBRequests4xx:
+              Enabled: false
+      Version: 1
     SystemType: enhanced
     HealthCheckSuccessThreshold: Severe
   aws:ec2:vpc:
