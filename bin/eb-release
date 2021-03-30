@@ -84,7 +84,7 @@ EB_BUCKET=$(aws elasticbeanstalk create-storage-location --query S3Bucket --outp
 
 status "uploading application version to S3"
 
-VERSION_LABEL="${APP}-$(date -u +"%Y%m%dT%H%M%SZ")-${APP_DOCKER_TAG}"
+VERSION_LABEL="${APP}-${APP_ENV}$(date -u +"%Y%m%dT%H%M%SZ")-${APP_DOCKER_TAG}"
 SRCBUNDLE="${SRCBUNDLEDIR}/bundle.zip"
 
 pushd "$SRCBUNDLEDIR" > /dev/null
