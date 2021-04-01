@@ -1,0 +1,11 @@
+{
+  "AWSEBDockerrunVersion": "1",
+  "Image": {
+    "Name": "hypothesis/via"
+  },
+  "Ports": [
+    {
+      "ContainerPort": "9080"
+    }
+  ]
+}
