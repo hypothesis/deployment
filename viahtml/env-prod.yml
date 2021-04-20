@@ -30,6 +30,7 @@ OptionSettings:
               Enabled: false
       Version: 1
     SystemType: enhanced
+    HealthCheckSuccessThreshold: Warning
   aws:ec2:vpc:
     Subnets: subnet-2fdcbe4a,subnet-66b8413f
     VPCId: vpc-bc4d91d9
