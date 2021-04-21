@@ -44,7 +44,7 @@ OptionSettings:
   aws:elbv2:listener:443:
     ListenerEnabled: true
     SSLPolicy: ELBSecurityPolicy-TLS-1-2-2017-01
-    SSLCertificateArns: arn:aws:acm:us-west-1:964867326460:certificate/4e92b7d6-3171-4022-8c6e-3cbbadc76ab1
+    SSLCertificateArns: arn:aws:acm:us-west-1:964867326460:certificate/ef36b626-66e0-495e-813c-71a3b883f692
     DefaultProcess: default
     Protocol: HTTPS
   aws:autoscaling:launchconfiguration:
