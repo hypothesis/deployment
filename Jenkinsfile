@@ -6,7 +6,7 @@ def deployApplications = ['analytics-dashboard', 'bouncer', 'checkmate', 'h', 'h
 def deployTypes = ['deploy', 'redeploy', 'sync-env'].join('\n')
 // The list of environments. It is assumed that each application has one of each
 // of these environments.
-def deployEnvironments = ['qa', 'prod', 'qa3', 'prod3'].join('\n')
+def deployEnvironments = ['qa', 'prod'].join('\n')
 
 def postSlack(state, params) {
     def messages = [
