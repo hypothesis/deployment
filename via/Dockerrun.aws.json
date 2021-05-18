@@ -1,7 +1,7 @@
 {
   "AWSEBDockerrunVersion": "1",
   "Image": {
-    "Name": "hypothesis/via3"
+    "Name": "hypothesis/via"
   },
   "Ports": [
     {
