@@ -53,12 +53,16 @@ pipeline {
                description: 'Choose the application to deploy.')
     }
 
-    environment {
-        AWS_DEFAULT_REGION = 'us-west-1'
-    }
-
     stages {
-        stage('main') {
+        stage('us-west-1') {
+            when {
+                expression {
+                    !(params.APP ==~ /ca-.*/)
+                }
+            }
+            environment {
+                AWS_DEFAULT_REGION = 'us-west-1'
+            }
             steps {
                 script {
                     def label = "#${currentBuild.number} ${params.APP} " +
@@ -74,6 +78,33 @@ pipeline {
                 // parallel, as can deployments to different environments for
                 // the same app, but deployments to the same app and environment
                 // must execute serially.
+                lock(resource: "${params.APP}-${params.ENV}-deploy") {
+                    postSlack('start', params)
+                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding',
+                                      credentialsId: 'aws-elasticbeanstalk-jenkins']]) {
+                        sh 'bin/jenkins'
+                    }
+                }
+            }
+        }
+        stage('ca-central-1') {
+            when {
+                expression {
+                    params.APP ==~ /ca-.*/
+                }
+            }
+            environment {
+                AWS_DEFAULT_REGION = 'ca-central-1'
+            }
+            steps {
+                script {
+                    def label = "#${currentBuild.number} ${params.APP} " +
+                                "${params.ENV} ${params.TYPE}"
+                    currentBuild.displayName = label
+                }
+
+                // Deployment process in the ca-central-1 stage happen in the same
+                // manner as the us-west-1 stage.
                 lock(resource: "${params.APP}-${params.ENV}-deploy") {
                     postSlack('start', params)
                     withCredentials([[$class: 'AmazonWebServicesCredentialsBinding',
