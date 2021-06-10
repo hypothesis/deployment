@@ -14,6 +14,8 @@
 # name of the environment in Elastic Beanstalk will be prefixed with the name of
 # the application.
 : ${ENV:=}
+# The target AWS region, will be one of ['us-west-1', 'ca-central-1'].
+: ${REGION:=}
 
 PATH="$(dirname "$0"):${PATH}"
 
