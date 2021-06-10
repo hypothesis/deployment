@@ -35,13 +35,17 @@ if [ -z "$ENV" ]; then
     abort "cannot proceed unless \$ENV is specified"
 fi
 
+if [ -z "$REGION" ]; then
+    abort "cannot proceed unless \$REGION is specified"
+fi
+
 if [ "$TYPE" = "deploy" ]; then
   if [ -z "$APP_DOCKER_VERSION" ]; then
     abort "cannot proceed with deploy unless \$APP_DOCKER_VERSION is specified"
   fi
 
   version_label=$(eb-release "$APP" "$APP_DOCKER_VERSION" "$ENV")
-  eb-deploy "$APP" "$ENV" "$version_label"
+  eb-deploy "$APP" "$ENV" "$version_label" "$REGION"
 
 elif [ "$TYPE" = "redeploy" ]; then
   if [ -n "$APP_DOCKER_VERSION" ]; then
@@ -49,10 +53,10 @@ elif [ "$TYPE" = "redeploy" ]; then
   fi
 
   version_label=$(eb-env-version "$APP" "$ENV")
-  eb-deploy "$APP" "$ENV" "$version_label"
+  eb-deploy "$APP" "$ENV" "$version_label" "$REGION"
 
 elif [ "$TYPE" = "sync-env" ]; then
-  eb-env-sync "$APP" "$ENV"
+  eb-env-sync "$APP" "$ENV" "$REGION"
 else
   abort "Don't know how to handle deployment type \"$TYPE\""
 fi
