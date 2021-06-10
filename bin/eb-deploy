@@ -1,10 +1,10 @@
 #!/bin/sh
 
 usage () {
-    echo "Usage: $(basename "$0") <APP> <ENV> <VERSION_LABEL>"
+    echo "Usage: $(basename "$0") <APP> <ENV> <VERSION_LABEL> <REGION>"
     echo
     echo "Deploy an application at a specified version to the named"
-    echo "environment."
+    echo "environment and specified region."
     echo
     echo "N.B. The application version is assumed to have already been created"
     echo "in Elastic Beanstalk using, for example, the eb-release script."
@@ -12,6 +12,7 @@ usage () {
     echo "  APP              the name of the application, e.g. 'bouncer'"
     echo "  ENV              the environment: typically 'qa' or 'prod'"
     echo "  VERSION_LABEL    the application version"
+    echo "  REGION           the target AWS region"
 }
 
 abort () {
@@ -24,7 +25,7 @@ status () {
     echo "--->" "$@" >&2
 }
 
-if [ "$#" -ne 3 ]; then
+if [ "$#" -ne 4 ]; then
     usage >&2
     exit 1
 fi
@@ -36,6 +37,7 @@ PATH="$(dirname "$0"):${PATH}"
 APP=$1
 ENV=$2
 VERSION_LABEL=$3
+REGION=$4
 
 status "deploying application"
 
@@ -43,11 +45,12 @@ status "deploying application"
 # and the deployment will proceed on its own.
 #
 # If the environment does not yet exist, create it using eb-env-create.
-if eb-env-exists "$APP" "$ENV"; then
+if eb-env-exists "$APP" "$ENV" "$REGION"; then
     aws elasticbeanstalk update-environment \
         --application-name "$APP" \
         --environment-name "${APP}-${ENV}" \
-        --version-label "$VERSION_LABEL"
+        --version-label "$VERSION_LABEL" \
+        --region "$REGION"
 else
-    eb-env-create "$APP" "$ENV" "$VERSION_LABEL"
+    eb-env-create "$APP" "$ENV" "$VERSION_LABEL" "$REGION"
 fi
