@@ -13,7 +13,7 @@ def deployRegions = ['us-west-1', 'ca-central-1'].join('\n')
 def postSlack(state, params) {
     def messages = [
         'start': ['deploy': "Starting to deploy ${params.APP} ${params.APP_DOCKER_VERSION} to ${params.ENV} (${params.REGION})",
-                  'redeploy': "Starting re-deployment of ${params.APP} in ${params.ENV}",
+                  'redeploy': "Starting re-deployment of ${params.APP} in ${params.ENV} (${params.REGION})",
                   'sync-env': "Starting to synchronize the ${params.APP}-${params.ENV} environment (${params.REGION})"],
         'success': ['deploy': "Successfully deployed ${params.APP} ${params.APP_DOCKER_VERSION} to ${params.ENV} (${params.REGION})",
                     'redeploy': "Successfully re-deployed ${params.APP} in ${params.ENV} (${params.REGION})",
