@@ -7,18 +7,20 @@ def deployTypes = ['deploy', 'redeploy', 'sync-env'].join('\n')
 // The list of environments. It is assumed that each application has one of each
 // of these environments.
 def deployEnvironments = ['qa', 'prod'].join('\n')
+// The list of supported regions. Defaults to us-west-1.
+def deployRegions = ['us-west-1', 'ca-central-1'].join('\n')
 
 def postSlack(state, params) {
     def messages = [
-        'start': ['deploy': "Starting to deploy ${params.APP} ${params.APP_DOCKER_VERSION} to ${params.ENV}",
+        'start': ['deploy': "Starting to deploy ${params.APP} ${params.APP_DOCKER_VERSION} to ${params.ENV} (${params.REGION})",
                   'redeploy': "Starting re-deployment of ${params.APP} in ${params.ENV}",
-                  'sync-env': "Starting to synchronize the ${params.APP}-${params.ENV} environment"],
-        'success': ['deploy': "Successfully deployed ${params.APP} ${params.APP_DOCKER_VERSION} to ${params.ENV}",
-                    'redeploy': "Successfully re-deployed ${params.APP} in ${params.ENV}",
-                    'sync-env': "Successfully synchronized the ${params.APP}-${params.ENV} environment"],
-        'error': ['deploy': "Failed to deploy ${params.APP} ${params.APP_DOCKER_VERSION} to ${params.ENV}",
-                  'redeploy': "Failed to re-deploy ${params.APP} in ${params.ENV}",
-                  'sync-env': "Failed to synchronize the ${params.APP}-${params.ENV} environment"]
+                  'sync-env': "Starting to synchronize the ${params.APP}-${params.ENV} environment (${params.REGION})"],
+        'success': ['deploy': "Successfully deployed ${params.APP} ${params.APP_DOCKER_VERSION} to ${params.ENV} (${params.REGION})",
+                    'redeploy': "Successfully re-deployed ${params.APP} in ${params.ENV} (${params.REGION})",
+                    'sync-env': "Successfully synchronized the ${params.APP}-${params.ENV} environment (${params.REGION})"],
+        'error': ['deploy': "Failed to deploy ${params.APP} ${params.APP_DOCKER_VERSION} to ${params.ENV} (${params.REGION})",
+                  'redeploy': "Failed to re-deploy ${params.APP} in ${params.ENV} (${params.REGION})",
+                  'sync-env': "Failed to synchronize the ${params.APP}-${params.ENV} environment (${params.REGION})"]
     ]
     def colors = ['start': 'good', 'success': 'good', 'error': 'danger']
     slackSend color: colors[state], message: messages[state][params.TYPE]
@@ -48,13 +50,16 @@ pipeline {
                             'deploy. This is required if the selected ' +
                             'deployment type is `deploy`.',
                defaultValue: '')
+        choice(name: 'REGION',
+               choices: deployRegions,
+               description: 'Choose the region to deploy. Defaults to us-west-1')
         choice(name: 'ENV',
                choices: deployEnvironments,
                description: 'Choose the application to deploy.')
     }
 
     environment {
-        AWS_DEFAULT_REGION = 'us-west-1'
+        AWS_DEFAULT_REGION = "${params.REGION}"
     }
 
     stages {
