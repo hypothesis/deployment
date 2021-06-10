@@ -1,16 +1,21 @@
 #!/bin/sh
 
 usage () {
-    echo "Usage: $(basename "$0") <APP> <ENV>"
+    echo "Usage: $(basename "$0") <APP> <ENV> <REGION>"
     echo
     echo "Synchronize an Elastic Beanstalk environment with the settings in the"
     echo "local environment configuration file."
     echo
     echo "  APP            the name of the application, e.g. 'bouncer'"
     echo "  ENV            the environment: typically 'qa' or 'prod'"
+    echo "  REGION         the target AWS region"
     echo
-    echo "The environment configuration will be assumed to live in an "
+    echo "us-west-1 environment configuration will be assumed to live in an "
     echo "environment manifest at <APP>/env-<ENV>.yml relative to the working "
+    echo "directory."
+    echo
+    echo "ca-central-1 environment configuration will be assumed to live in an "
+    echo "environment manifest at <APP>/env-<ENV>-ca.yml relative to the working "
     echo "directory."
 }
 
@@ -24,7 +29,7 @@ status () {
     echo "--->" "$@" >&2
 }
 
-if [ "$#" -ne 2 ]; then
+if [ "$#" -ne 3 ]; then
     usage >&2
     exit 1
 fi
@@ -35,13 +40,21 @@ PATH="$(dirname "$0"):${PATH}"
 
 APP=$1
 ENV=$2
-MANIFEST="${APP}/env-${ENV}.yml"
+REGION=$3
+
+if [ $REGION = 'us-west-1' ]; then
+    MANIFEST="${APP}/env-${ENV}.yml"
+fi
+
+if [ $REGION = 'ca-central-1' ]; then
+    MANIFEST="${APP}/env-${ENV}-${REGION:0:2}.yml"
+fi
 
 if [ ! -f "$MANIFEST" ]; then
     abort "expected to find environment manifest file at '${MANIFEST}'"
 fi
 
-if ! eb-env-exists "$APP" "$ENV"; then
+if ! eb-env-exists "$APP" "$ENV" "$REGION"; then
     abort "$ENV environment doesn't exist for $APP"
 fi
 
@@ -69,7 +82,8 @@ status "updating application resource lifecycle settings"
 
 aws elasticbeanstalk update-application-resource-lifecycle \
     --application-name "$APP" \
-    --resource-lifecycle-config file://resource-lifecycle.json
+    --resource-lifecycle-config file://resource-lifecycle.json \
+    --region $REGION
 
 status "updating environment"
 
@@ -77,4 +91,5 @@ aws elasticbeanstalk update-environment \
     --application-name "$APP" \
     --environment-name "${APP}-${ENV}" \
     --platform-arn "$EB_PLATFORM_ARN" \
-    --option-settings file://"$OPTION_SETTINGS_FILE"
+    --option-settings file://"$OPTION_SETTINGS_FILE" \
+    --region $REGION
