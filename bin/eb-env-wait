@@ -21,6 +21,7 @@ import boto3
 parser = argparse.ArgumentParser()
 parser.add_argument('app')
 parser.add_argument('env')
+parser.add_argument('region')
 
 
 def main():
@@ -29,7 +30,7 @@ def main():
 
 
 def loop(args):
-    client = boto3.client('elasticbeanstalk')
+    client = boto3.client('elasticbeanstalk', region_name=args.region)
     app_name = args.app
     env_name = '{}-{}'.format(args.app, args.env)
     last_event_time = datetime.datetime.utcnow() - datetime.timedelta(minutes=1)
