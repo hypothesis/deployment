@@ -1,13 +1,13 @@
 #!/bin/sh
 
 usage () {
-    echo "Usage: $(basename "$0") <APP> <ENV>"
+    echo "Usage: $(basename "$0") <APP> <ENV> <REGION>"
     echo
     echo "Check if an Elastic Beanstalk environment already exists. Exits zero"
     echo "when the environment exists, and non-zero otherwise."
 }
 
-if [ "$#" -ne 2 ]; then
+if [ "$#" -ne 3 ]; then
     usage >&2
     exit 1
 fi
@@ -16,10 +16,12 @@ set -eu
 
 APP=$1
 ENV=$2
+REGION=$3
 
 count=$(aws elasticbeanstalk describe-environments \
         --application-name "$APP" \
         --environment-names "${APP}-${ENV}" \
         --query 'length(Environments)' \
-        --output text)
+        --output text \
+	--region "$REGION")
 test "$count" -gt 0
