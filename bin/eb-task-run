@@ -3,7 +3,7 @@
 set -eu
 
 usage () {
-    echo "Usage: $(basename "$0") <APP> <ENV> <TIMEOUT> <COMMAND>"
+    echo "Usage: $(basename "$0") <APP> <ENV> <TIMEOUT> <COMMAND> <REGION>"
     echo
     echo "Run a command inside the Docker container of a running Elastic Beanstalk"
     echo "instance and tail the output."
@@ -12,6 +12,7 @@ usage () {
     echo "  ENV            the environment: typically 'qa' or 'prod'"
     echo "  TIMEOUT        the command timeout in seconds"
     echo "  COMMAND        the command to run, e.g. 'hypothesis user admin myuser'"
+    echo "  REGION         the target AWS region"
     echo
     echo "Note that the selected instance will be protected from a scale-in event"
     echo "for the duration of the command."
@@ -27,7 +28,7 @@ status () {
     echo "--->" "$@" >&2
 }
 
-if [ "$#" -ne 4 ]; then
+if [ "$#" -ne 5 ]; then
     usage >&2
     exit 1
 fi
@@ -38,9 +39,10 @@ APP=$1
 ENV=$2
 TIMEOUT=$3
 COMMAND=$4
+REGION=$5
 
 
-if ! eb-env-exists "$APP" "$ENV"; then
+if ! eb-env-exists "$APP" "$ENV" "$REGION"; then
     abort "$ENV environment doesn't exist for $APP"
 fi
 
@@ -53,7 +55,8 @@ INSTANCE_ID=$(aws ec2 describe-instances \
                   --filters "Name=tag:elasticbeanstalk:environment-name,Values=${APP}-${ENV}" \
                             "Name=instance-state-name,Values=running" \
                   --query "Reservations[0].Instances[0].InstanceId" \
-                  --output text)
+                  --output text \
+	          --region "$REGION")
 
 if [ "$INSTANCE_ID" = "None" ]; then
   abort "Could not find a running instance for $APP and $ENV"
@@ -74,18 +77,21 @@ remove_instance_protection() {
   echo aws autoscaling set-instance-protection \
       --auto-scaling-group-name "$asg_name" \
       --instance-ids "$instance_id" \
-      --no-protected-from-scale-in
+      --no-protected-from-scale-in \
+      --region "$REGION"
 }
 
 ASG_NAME=$(aws elasticbeanstalk describe-environment-resources \
                --environment-name "${APP}-${ENV}" \
                --query "EnvironmentResources.AutoScalingGroups[0].Name" \
-               --output text)
+               --output text \
+               --region "$REGION")
 
 aws autoscaling set-instance-protection \
     --auto-scaling-group-name "$ASG_NAME" \
     --instance-ids "$INSTANCE_ID" \
-    --protected-from-scale-in
+    --protected-from-scale-in \
+    --region "$REGION"
 
 trap "remove_instance_protection '$ASG_NAME' '$INSTANCE_ID'" EXIT
 
@@ -102,7 +108,8 @@ COMMAND_ID=$(aws ssm send-command \
                  }" \
                  --query 'Command.CommandId' \
                  --output-s3-bucket-name "$OUTPUT_BUCKET_NAME" \
-                 --output text)
+                 --output text \
+	         --region "$REGION")
 
 status "running command $COMMAND_ID. Output is available in the \"$OUTPUT_BUCKET_NAME\" S3 bucket."
-eb-task-wait "$COMMAND_ID" "$INSTANCE_ID"
+eb-task-wait "$COMMAND_ID" "$INSTANCE_ID" "$REGION"
