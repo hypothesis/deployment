@@ -22,6 +22,7 @@ IN_PROGRESS_STATUSES = ['Pending', 'In Progress', 'Delayed']
 parser = argparse.ArgumentParser()
 parser.add_argument('command_id')
 parser.add_argument('instance_id')
+parser.add_argument('region')
 
 
 def main():
@@ -30,7 +31,7 @@ def main():
 
 
 def loop(args):
-    client = boto3.client('ssm')
+    client = boto3.client('ssm', region_name=args.region)
 
     while True:
         resp = client.get_command_invocation(CommandId=args.command_id,
