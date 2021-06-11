@@ -1,7 +1,7 @@
 #!/bin/bash
 
 usage () {
-    echo "Usage: $(basename "$0") <APP> <APP_DOCKER_TAG> <APP_ENV>"
+    echo "Usage: $(basename "$0") <APP> <APP_DOCKER_TAG> <APP_ENV> <REGION>"
     echo
     echo "Create an application version for the named application using a"
     echo "specified Docker image tag."
@@ -11,6 +11,7 @@ usage () {
     echo "  APP              the name of the application, e.g. 'bouncer'"
     echo "  APP_DOCKER_TAG   the tag of the Docker image to release"
     echo "  APP_ENV          the ENV or stage, usuall prod or qa"
+    echo "  REGION           the target AWS region"
 }
 
 abort () {
@@ -23,7 +24,7 @@ status () {
     echo "--->" "$@" >&2
 }
 
-if [ "$#" -ne 3 ]; then
+if [ "$#" -ne 4 ]; then
     usage >&2
     exit 1
 fi
@@ -35,6 +36,7 @@ PATH="$(dirname "$0"):${PATH}"
 APP=$1
 APP_DOCKER_TAG=$2
 APP_ENV=$3
+REGION=$4
 
 if [ ! -f "${APP}/Dockerrun.aws.json" ]; then
     abort "there must be a Dockerrun.aws.json in the app directory (${APP}/)"
@@ -79,7 +81,7 @@ trap 'rm -r "$SRCBUNDLEDIR"' EXIT
 
 status "fetching storage location"
 
-EB_BUCKET=$(aws elasticbeanstalk create-storage-location --query S3Bucket --output text)
+EB_BUCKET=$(aws elasticbeanstalk create-storage-location --query S3Bucket --output text --region "$REGION")
 
 
 status "uploading application version to S3"
@@ -103,7 +105,8 @@ aws elasticbeanstalk create-application-version \
     --process \
     --auto-create-application \
     --query 'ApplicationVersion.VersionLabel' \
-    --output text
+    --output text \
+    --region "$REGION"
 
 status "waiting for application version to be processed"
 
@@ -112,7 +115,8 @@ while true; do
                --application-name "$APP" \
                --version-label "$VERSION_LABEL" \
                --query 'ApplicationVersions[0].Status' \
-               --output text)
+               --output text \
+               --region "$REGION")
   if [ "$STATUS" = "PROCESSING" ]; then sleep 2; continue; fi
   if [ "$STATUS" = "FAILED" ]; then
     status "application version processing failed"
