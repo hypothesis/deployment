@@ -41,6 +41,10 @@ if [ -z "$REGION" ]; then
     abort "cannot proceed unless \$REGION is specified"
 fi
 
+if [ ! $REGION = 'us-west-1' ]; then
+    APP=$(echo $APP | awk -F- '{print $1}')
+fi
+
 if [ "$TYPE" = "deploy" ]; then
   if [ -z "$APP_DOCKER_VERSION" ]; then
     abort "cannot proceed with deploy unless \$APP_DOCKER_VERSION is specified"
