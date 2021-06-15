@@ -2,6 +2,8 @@
 
 def environments = ['qa', 'prod'].join('\n')
 
+def regions = ['us-west-1', 'ca-central-1'].join('\n')
+
 def tasks = [
     'db current revision (timeout 10m)': [cmd: 'alembic -c conf/alembic.ini current', timeout: '600'],
     'db upgrade to head (timeout 10m)': [cmd: 'alembic -c conf/alembic.ini upgrade head', timeout: '600', confirm: true],
@@ -11,11 +13,11 @@ def tasks = [
 
 def taskChoices = tasks.keySet().join('\n')
 
-def postSlack(state, env, task) {
+def postSlack(state, env, task, region) {
     messages = [
-        'start': "Starting task \"${task}\" on lms-${env}",
-        'error': "Failed to run task \"${task}\" on lms-${env}",
-        'success': "Successfully ran task \"${task}\" on lms-${env}"
+        'start': "Starting task \"${task}\" on lms-${env} (${region})",
+        'error': "Failed to run task \"${task}\" on lms-${env} (${region})",
+        'success': "Successfully ran task \"${task}\" on lms-${env} (${region})"
     ]
     def colors = ['start': 'good', 'success': 'good', 'error': 'danger']
 
@@ -36,10 +38,13 @@ pipeline {
                description: 'Each task defines its own default timeout, this can ' +
                             'be overridden here. The value is in seconds.',
                defaultValue: 'task-default')
+        choice(name: 'REGION',
+               choices: regions,
+               description: 'Choose the AWS region where you want the task to run. Defaults to us-west-1.')
     }
 
     environment {
-        AWS_DEFAULT_REGION = 'us-west-1'
+        AWS_DEFAULT_REGION = "${params.REGION}"
     }
 
     stages {
@@ -74,7 +79,7 @@ pipeline {
                             input(message: "This task might be dangerous. Do you wish to continue?")
                         }
                         postSlack('start', params.ENV, params.TASK)
-                        sh "bin/eb-task-run lms ${params.ENV} ${timeout} \"${cmd}\""
+                        sh "bin/eb-task-run lms ${params.ENV} ${timeout} \"${cmd}\" ${params.REGION}"
                     }
                 }
             }
@@ -82,7 +87,7 @@ pipeline {
     }
 
     post {
-        failure { postSlack('error', params.ENV, params.TASK) }
-        success { postSlack('success', params.ENV, params.TASK) }
+        failure { postSlack('error', params.ENV, params.TASK, params.REGION) }
+        success { postSlack('success', params.ENV, params.TASK, params.REGION) }
     }
 }
