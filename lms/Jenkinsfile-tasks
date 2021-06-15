@@ -78,7 +78,7 @@ pipeline {
                         if (task['confirm'] == true) {
                             input(message: "This task might be dangerous. Do you wish to continue?")
                         }
-                        postSlack('start', params.ENV, params.TASK)
+                        postSlack('start', params.ENV, params.TASK, params.REGION)
                         sh "bin/eb-task-run lms ${params.ENV} ${timeout} \"${cmd}\" ${params.REGION}"
                     }
                 }
