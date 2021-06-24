@@ -1,0 +1,7 @@
+iamsync:
+  - iam_group: support
+    sudo_rule: "ALL= NOPASSWD: /bin/su - postgres"
+    local_gid: 1024
+  - iam_group: engineering
+    sudo_rule: "ALL=(ALL) NOPASSWD:ALL"
+    local_gid: 1025
