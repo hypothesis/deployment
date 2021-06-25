@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # The name of the Elastic Beanstalk application to manage
 : ${APP:=}
@@ -14,57 +14,136 @@
 # name of the environment in Elastic Beanstalk will be prefixed with the name of
 # the application.
 : ${ENV:=}
-# The target AWS region
-: ${REGION:=}
 
 PATH="$(dirname "$0"):${PATH}"
 
 set -eu
 
-export AWS_DEFAULT_REGION="$REGION"
-
-abort () {
+function abort () {
     echo "Error:" "$@" >&2
     echo "Aborting!" >&2
     exit 1
 }
 
-if [ -z "$APP" ]; then
+function environment_check() {
+  if [ -z "$APP" ]; then
     abort "cannot proceed unless \$APP is specified"
-fi
+  fi
+  
+  if [ -z "$ENV" ]; then
+    abort "Cannot proceed unless \$ENV is specified"
+  fi
 
-if [ -z "$ENV" ]; then
-    abort "cannot proceed unless \$ENV is specified"
-fi
+  if [ "$TYPE" != "deploy" ] && \
+     [ "$TYPE" != "redeploy" ] && \
+     [ "$TYPE" != "sync-env" ]; then
+    abort "Don't know how to handle deployment type \"$TYPE\""
+  fi
 
-if [ -z "$REGION" ]; then
-    abort "cannot proceed unless \$REGION is specified"
-fi
+  if [ "$TYPE" = "redeploy" ] && [ -n "$APP_DOCKER_VERSION" ]; then
+    abort "Do not specify \$APP_DOCKER_VERSION for a redeploy"
+  fi
 
-if [ ! $REGION = 'us-west-1' ]; then
-    APP=$(echo $APP | awk -F- '{print $1}')
-fi
+  if [ "$TYPE" = "deploy" ] && [ -z "$APP_DOCKER_VERSION" ]; then
+    abort "Cannot deploy unless \$APP_DOCKER_VERSION is specified"
+  fi
+}
+
+function deploy() {
+  local app="$1"
+  local env="$2"
+  local app_docker_version="$3"
+  local region="$4"
+  local version_label=$(eb-release \
+	  "$app" \
+	  "$app_docker_version" \
+	  "$env" \
+	  "$region" \
+        )
+  eb-deploy "$app" "$env" "$version_label" "$region"
+}	
+
+function redeploy() {
+  local app="$1"
+  local env="$2"
+  local region="$3"
+  local version_label=$(eb-env-version \
+	  "$app" \
+	  "$env" \
+	  "$region" \
+        )
+  eb-deploy "$app" "$env" "$version_label" "$region"
+}
+
+function sync_env() {
+  local app="$1"
+  local env="$2"
+  local region="$3"
+  eb-env-sync "$app" "$env" "$region"
+}
+
+environment_check
 
 if [ "$TYPE" = "deploy" ]; then
-  if [ -z "$APP_DOCKER_VERSION" ]; then
-    abort "cannot proceed with deploy unless \$APP_DOCKER_VERSION is specified"
-  fi
 
-  version_label=$(eb-release "$APP" "$APP_DOCKER_VERSION" "$ENV" "$REGION")
-  eb-deploy "$APP" "$ENV" "$version_label" "$REGION"
+  if [ "$ENV" = 'prod'  ]; then
+    case $APP in
+      "h" | "lms" | "h-periodic" )
+        deploy "$APP" "prod" "$APP_DOCKER_VERSION" "us-west-1" &
+        deploy "$APP-ca" "prod" "$APP_DOCKER_VERSION" "ca-central-1"
+        ;;
+      *)
+        deploy "$APP" "prod" "$APP_DOCKER_VERSION" "us-west-1"
+        ;;
+    esac
+  elif [ "$ENV" = 'qa'  ]; then
+    deploy "$APP" "qa" "$APP_DOCKER_VERSION" "us-west-1"
+  fi
 
 elif [ "$TYPE" = "redeploy" ]; then
-  if [ -n "$APP_DOCKER_VERSION" ]; then
-    abort "do not specify \$APP_DOCKER_VERSION for a redeploy"
+
+  if [ "$ENV" = 'prod'  ]; then
+    case $APP in
+      "h" | "lms" | "h-periodic" )
+        redeploy "$APP" "prod" "us-west-1" &
+        redeploy "$APP-ca" "prod" "ca-central-1"
+        ;;
+      *)
+        redeploy "$APP" "prod" "us-west-1"
+        ;;
+    esac
+  elif [ "$ENV" = 'qa'  ]; then
+    redeploy "$APP" "qa" "us-west-1"
   fi
 
-  version_label=$(eb-env-version "$APP" "$ENV" "$REGION")
-  eb-deploy "$APP" "$ENV" "$version_label" "$REGION"
-
 elif [ "$TYPE" = "sync-env" ]; then
-  eb-env-sync "$APP" "$ENV" "$REGION"
-else
-  abort "Don't know how to handle deployment type \"$TYPE\""
+
+  if [ "$ENV" = 'prod'  ]; then
+    case $APP in
+      "h" | "lms" | "h-periodic" )
+        sync_env "$APP" "prod" "us-west-1" &
+        sync_env "$APP-ca" "prod" "ca-central-1"
+        ;;
+      *)
+        sync_env "$APP" "prod" "us-west-1"
+        ;;
+    esac
+  elif [ "$ENV" = 'qa'  ]; then
+    sync_env "$APP" "qa" "us-west-1"
+  fi
+
 fi
 
-eb-env-wait "$APP" "$ENV" "$REGION"
+if [ "$ENV" = 'prod'  ]; then
+  case $APP in
+    "h" | "lms" | "h-periodic" )
+      eb-env-wait "$APP" "prod" "us-west-1" &
+      eb-env-wait "$APP-ca" "prod" "us-west-1"
+    ;;
+    *)
+      eb-env-wait "$APP" "prod" "$REGION"
+      ;;
+  esac
+else
+  eb-env-wait "$APP" "$ENV" "$REGION"
+fi
