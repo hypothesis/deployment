@@ -9,9 +9,7 @@ OptionSettings:
     StreamLogs: true
     RetentionInDays: "7"
   aws:elasticbeanstalk:command:
-    DeploymentPolicy: RollingWithAdditionalBatch
-    BatchSizeType: Percentage
-    BatchSize: '100'
+    DeploymentPolicy: Immutable
   aws:elasticbeanstalk:environment:
     EnvironmentType: LoadBalanced
     LoadBalancerType: application
