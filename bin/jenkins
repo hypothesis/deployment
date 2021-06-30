@@ -42,7 +42,8 @@ if [ -z "$REGION" ]; then
 fi
 
 if [ ! $REGION = 'us-west-1' ]; then
-    APP=$(echo $APP | awk -F- '{print $1}')
+    # Remove '-' + 2 letter region code from APP when not deploying to us-west-1.
+    APP=$(echo $APP | awk '{print substr($0, 1, length($0)-length("-rc"))}')
 fi
 
 if [ "$TYPE" = "deploy" ]; then
