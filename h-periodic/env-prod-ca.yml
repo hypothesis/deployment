@@ -1,0 +1,27 @@
+AWSConfigurationTemplateVersion: 1.1.0.0
+Platform:
+  PlatformArn: arn:aws:elasticbeanstalk:ca-central-1::platform/Docker running on 64bit Amazon Linux/2.16.8
+EnvironmentTier:
+  Type: Standard
+  Name: WebServer
+OptionSettings:
+  aws:elasticbeanstalk:command:
+    DeploymentPolicy: AllAtOnce
+  aws:elasticbeanstalk:environment:
+    EnvironmentType: SingleInstance
+    ServiceRole: aws-elasticbeanstalk-service-role
+  aws:elasticbeanstalk:environment:process:default:
+    HealthCheckPath: /_status
+  aws:elasticbeanstalk:healthreporting:system:
+    SystemType: enhanced
+  aws:ec2:vpc:
+    Subnets: subnet-01a802d1d51e9c72a, subnet-08b8c8c57d1eab2e9
+    VPCId: vpc-024e4f876faebe8de
+  aws:autoscaling:launchconfiguration:
+    SecurityGroups: sg-0922e5618debd9020
+    IamInstanceProfile: aws-elasticbeanstalk-ec2-role
+    InstanceType: t3.micro
+    EC2KeyName: ops-20191105
+  aws:autoscaling:asg:
+    MaxSize: '1'
+    MinSize: '1'
