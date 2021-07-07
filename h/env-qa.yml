@@ -11,7 +11,7 @@ OptionSettings:
   aws:elasticbeanstalk:command:
     DeploymentPolicy: Rolling 
   aws:autoscaling:updatepolicy:rollingupdate:
-    RollingUpdateType: Immutable
+    RollingUpdateType: Health
     RollingUpdateEnabled: true
   aws:elasticbeanstalk:environment:
     EnvironmentType: LoadBalanced
