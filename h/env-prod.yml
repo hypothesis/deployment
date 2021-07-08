@@ -45,7 +45,7 @@ OptionSettings:
   aws:autoscaling:asg:
     MaxSize: '24'
     MinSize: '3'
- aws:autoscaling:trigger:
+  aws:autoscaling:trigger:
     MeasureName: CPUUtilization
     Statistic: Average
     Unit: Percent
