@@ -40,40 +40,18 @@ OptionSettings:
   aws:autoscaling:launchconfiguration:
     SecurityGroups: sg-fdf9c19a,sg-a6073fc1
     IamInstanceProfile: aws-elasticbeanstalk-ec2-role
-    InstanceType: m5.large
+    InstanceType: c5.xlarge
     EC2KeyName: ops-20191105
   aws:autoscaling:asg:
-    MaxSize: '18'
-    MinSize: '8'
-  # Based on constant-load testing against the badge endpoint (which forms our
-  # baseline load as of 2017-06-26), a single m4.large instance will begin to
-  # suffer latency degradations as request rates approach 60 req/s,
-  # corresponding to outbound traffic to the internet of about 65kBps.
-  #
-  # Using a margin of safety, let's call this 50kBps. Multiplying this up by
-  # the 5 minute accumulation period, this gives a scale-out threshold of about
-  # 15e6 bytes per-instance over that period.
-  AWSEBCloudwatchAlarmHigh.aws:autoscaling:trigger:
-    UpperThreshold: '15000000'
-  # Similar constant-load testing shows that a single m4.large instance will
-  # happily serve 30 req/s (and ~32kBps to the internet) constantly, with
-  # relatively low utilisation. This gives us a scale in threshold of:
-  #
-  #     32kBps * 5 min = 9.6e6 bytes
-  #
-  # BUT it is important that the scale-in threshold is less than 1/2 of the
-  # scale-out threshold (UpperThreshold) by some margin, otherwise overall
-  # traffic levels corresponding to ~UpperThreshold will result in constant
-  # scaling activity with the cluster switching between 1 and 2 instances
-  # forever.
-  #
-  # As such, we pick roughly 0.9 * (UpperThreshold / 2) as the value for the
-  # LowerThreshold.
-  AWSEBCloudwatchAlarmLow.aws:autoscaling:trigger:
-    BreachDuration: '5'
-    EvaluationPeriods: '2'
-    Period: '5'
-    LowerThreshold: '7000000'
-    MeasureName: NetworkOut
+    MaxSize: '24'
+    MinSize: '3'
+ aws:autoscaling:trigger:
+    MeasureName: CPUUtilization
     Statistic: Average
-    Unit: Bytes
+    Unit: Percent
+    Period: '5'
+    EvaluationPeriods: '2'
+    UpperThreshold: '45'
+    UpperBreachScaleIncrement: '2'
+    LowerThreshold: '30'
+    LowerBreachScaleIncrement: '-1'
