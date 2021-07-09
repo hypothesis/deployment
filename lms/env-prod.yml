@@ -1,6 +1,6 @@
 AWSConfigurationTemplateVersion: 1.1.0.0
 Platform:
-  PlatformArn: arn:aws:elasticbeanstalk:us-west-1::platform/Docker running on 64bit Amazon Linux/2.12.14
+  PlatformArn: arn:aws:elasticbeanstalk:us-west-1::platform/Docker running on 64bit Amazon Linux 2/3.4.1
 EnvironmentTier:
   Type: Standard
   Name: WebServer
@@ -27,7 +27,7 @@ OptionSettings:
     ELBScheme: public
     AssociatePublicIpAddress: true
   aws:autoscaling:updatepolicy:rollingupdate:
-    RollingUpdateType: Immutable
+    RollingUpdateType: Health
     RollingUpdateEnabled: true
   aws:elbv2:listener:default:
     ListenerEnabled: false
