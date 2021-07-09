@@ -20,15 +20,15 @@ OptionSettings:
     HealthCheckPath: /_status
   aws:elasticbeanstalk:healthreporting:system:
     ConfigDocument:
+      Version: 1
       Rules:
         Environment:
-          Application:
-            ApplicationRequests4xx:
-              Enabled: false
           ELB:
             ELBRequests4xx:
               Enabled: false
-      Version: 1
+          Application:
+            ApplicationRequests4xx:
+              Enabled: false
     SystemType: enhanced
   aws:ec2:vpc:
     Subnets: subnet-0f19e456,subnet-ee2c418b
