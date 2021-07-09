@@ -25,10 +25,10 @@ OptionSettings:
         Environment:
           ELB:
             ELBRequests4xx:
-              Enabled: false
+              Enabled: true
           Application:
             ApplicationRequests4xx:
-              Enabled: false
+              Enabled: true
     SystemType: enhanced
   aws:ec2:vpc:
     Subnets: subnet-0f19e456,subnet-ee2c418b
