@@ -80,11 +80,11 @@ fi
 PLATFORMEXTENSIONS="${SRCBUNDLEDIR}/.platform"
 if [ -d "common/platform" ]; then
   mkdir -p "$PLATFORMEXTENSIONS"
-  cp -r common/platform/ "$PLATFORMEXTENSIONS"
+  cp -r common/platform/* "$PLATFORMEXTENSIONS"
 fi
 if [ -d "${APP}/platform/${APP_ENV}" ]; then
   mkdir -p "$PLATFORMEXTENSIONS"
-  cp -r ${APP}/platform/${APP_ENV}/ "$PLATFORMEXTENSIONS"
+  cp -r ${APP}/platform/${APP_ENV}/* "$PLATFORMEXTENSIONS"
 fi
 
 # And clean up when we're done...
