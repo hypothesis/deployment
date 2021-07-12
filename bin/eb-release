@@ -75,6 +75,18 @@ if [ -d "${APP}/ebextensions/${APP_ENV}" ]; then
   cp ${APP}/ebextensions/${APP_ENV}/*.config "$EBEXTENSIONS"
 fi
 
+# Conditionally create platform extension hierarchy. Used to provide
+# custom platform configuration on a per app or global basis.
+PLATFORMEXTENSIONS="${SRCBUNDLEDIR}/.platform"
+if [ -d "common/platform" ]; then
+  mkdir -p "$PLATFORMEXTENSIONS"
+  cp -r common/platform/ "$PLATFORMEXTENSIONS"
+fi
+if [ -d "${APP}/platform/${APP_ENV}" ]; then
+  mkdir -p "$PLATFORMEXTENSIONS"
+  cp -r ${APP}/platform/${APP_ENV}/ "$PLATFORMEXTENSIONS"
+fi
+
 # And clean up when we're done...
 trap 'rm -r "$SRCBUNDLEDIR"' EXIT
 
