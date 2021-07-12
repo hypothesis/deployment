@@ -18,18 +18,6 @@ OptionSettings:
     ServiceRole: aws-elasticbeanstalk-service-role
   aws:elasticbeanstalk:environment:process:default:
     HealthCheckPath: /_status
-  aws:elasticbeanstalk:healthreporting:system:
-    ConfigDocument:
-      Rules:
-        Environment:
-          Application:
-            ApplicationRequests4xx:
-              Enabled: false
-          ELB:
-            ELBRequests4xx:
-              Enabled: false
-      Version: 1
-    SystemType: enhanced
   aws:ec2:vpc:
     Subnets: subnet-2fdcbe4a,subnet-66b8413f
     VPCId: vpc-bc4d91d9
@@ -50,7 +38,7 @@ OptionSettings:
   aws:autoscaling:launchconfiguration:
     SecurityGroups: sg-fdf9c19a
     IamInstanceProfile: aws-elasticbeanstalk-ec2-role
-    InstanceType: t3.small
+    InstanceType: t3.medium
     EC2KeyName: ops-20191105
   aws:autoscaling:asg:
     MaxSize: '10'
