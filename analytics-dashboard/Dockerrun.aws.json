@@ -11,8 +11,8 @@
   "ulimits": [
     {
       "name": "nofile",
-      "softLimit": "4096",
-      "hardLimit": "4096"
+      "softLimit": 4096,
+      "hardLimit": 4096
     }
   ]
 }
