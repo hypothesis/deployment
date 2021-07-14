@@ -7,12 +7,5 @@
     {
       "ContainerPort": "8000"
     }
-  ],
-  "ulimits": [
-    {
-      "name": "nofile",
-      "softLimit": 4096,
-      "hardLimit": 4096
-    }
   ]
 }
