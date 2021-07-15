@@ -11,7 +11,7 @@ key=$(/opt/elasticbeanstalk/bin/get-config environment -k NEW_RELIC_LICENSE_KEY)
 display_name=$(/opt/elasticbeanstalk/bin/get-config environment -k NEW_RELIC_APP_NAME)
 
 function create_config() {
-cat << CONFIG > /etc/newrelic-infra.yml2
+cat << CONFIG > /etc/newrelic-infra.yml
 license_key: $key
 display_name: $display_name
 enable_process_metrics: false
