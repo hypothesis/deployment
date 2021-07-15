@@ -7,8 +7,8 @@
 #
 set -eu
 
-key=$(/opt/elasticbeanstalk/bin/get-config environment -k NEW_RELIC_LICENSE_KEY)
-display_name=$(/opt/elasticbeanstalk/bin/get-config environment -k NEW_RELIC_APP_NAME)
+key=$(/opt/elasticbeanstalk/bin/get-config environment -k NEW_RELIC_LICENSE_KEY || true)
+display_name=$(/opt/elasticbeanstalk/bin/get-config environment -k NEW_RELIC_APP_NAME || true)
 
 function create_config() {
 cat << CONFIG > /etc/newrelic-infra.yml
