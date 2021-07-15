@@ -18,7 +18,7 @@
 set -eu
 
 # Grab the environment_name value
-ENV_NAME="$(/opt/elasticbeanstalk/bin/get-config container -k environment_name)"
+ENV_NAME="$(/opt/elasticbeanstalk/bin/get-config container -k environment_name || true)"
 # Spilt on '-' and extract the second to last record
 APP="$(echo $ENV_NAME | awk -F- '{print $(NF-1)}')"
 
